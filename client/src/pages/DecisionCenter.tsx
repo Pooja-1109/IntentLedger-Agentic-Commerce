@@ -4,8 +4,10 @@ import {
   ShieldAlert,
   CheckCircle2,
   AlertTriangle,
-  Sliders,
   Bot,
+  ArrowRight,
+  ShieldCheck,
+  Activity,
 } from "lucide-react";
 import { DecisionBadge } from "../components/StatusBadge";
 import { apiService } from "../services/api";
@@ -54,7 +56,6 @@ export const DecisionCenterPage: React.FC = () => {
     }
   };
 
-  const selectedIntent = intents.find((i) => i.id === selectedIntentId) || intents[0];
   const latestDecision = decisions.length > 0 ? decisions[0] : null;
 
   const filteredChecks = latestDecision
@@ -66,14 +67,18 @@ export const DecisionCenterPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-surface-border">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary-light text-xs font-semibold uppercase tracking-wider mb-2">
-            Deterministic Governance Analysis
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+              Deterministic Governance Analysis
+            </span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white">Intent Decision Center</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Forensic policy evaluation, mathematical drift calculation, and granular rule verification for every agent action.
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Decision Center
+          </h1>
+          <p className="text-xs md:text-sm text-slate-600 mt-1">
+            Understand exactly why an AI transaction was allowed, reviewed, or blocked with mathematical drift and rule verification.
           </p>
         </div>
 
@@ -83,7 +88,7 @@ export const DecisionCenterPage: React.FC = () => {
             <select
               value={selectedIntentId}
               onChange={(e) => handleIntentChange(e.target.value)}
-              className="w-full text-xs font-semibold rounded-xl bg-surface-100 border border-surface-border p-3 text-slate-200 focus:outline-none focus:border-primary shadow-lg"
+              className="w-full text-xs font-semibold rounded-lg bg-white border border-surface-border p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs"
             >
               {intents.map((intent) => (
                 <option key={intent.id} value={intent.id}>
@@ -96,290 +101,244 @@ export const DecisionCenterPage: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-slate-500 text-xs animate-pulse">
-          Loading decision intelligence...
+        <div className="py-24 text-center text-slate-400 text-xs animate-pulse">
+          Loading decision intelligence from backend...
         </div>
       ) : !latestDecision ? (
-        <div className="rounded-2xl bg-surface-100 border border-surface-border p-12 text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-surface-200 border border-surface-border mx-auto flex items-center justify-center text-slate-400">
-            <Sliders className="w-6 h-6" />
-          </div>
-          <h3 className="text-base font-bold text-white">No Evaluated Proposals for this Intent Yet</h3>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
-            Run an autonomous shopping agent simulation in the Simulation Lab to generate real-time policy evaluation results.
+        <div className="fintech-card p-12 text-center space-y-4">
+          <Bot className="w-10 h-10 text-slate-400 mx-auto" />
+          <h3 className="text-sm font-bold text-slate-900">No Decisions Recorded for this Intent</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            Evaluate a candidate proposal in Commerce Simulator to view real-time governance analysis.
           </p>
           <Link
             to="/simulation"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-glow transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm"
           >
-            <Bot className="w-4 h-4" />
-            <span>Launch Simulation Lab</span>
+            <span>Open Simulator</span>
+            <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Top Banner: Decision Summary & Risk Meter */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Decision & Explanation */}
-            <div className="lg:col-span-8 rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-xl space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Latest Decision Verdict
+          {/* Hero Decision Summary Banner */}
+          <div className="fintech-card p-6 space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-surface-border">
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  Evaluated Policy Decision
                 </span>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  ID: {latestDecision.id}
-                </span>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-4">
-                <DecisionBadge decision={latestDecision.decision} size="lg" />
-                <span className="text-xs text-slate-400">
-                  Evaluated at {new Date(latestDecision.evaluatedAt).toLocaleTimeString()}
-                </span>
-              </div>
-
-              <p className="text-sm text-slate-200 font-medium leading-relaxed">
-                {latestDecision.explanation}
-              </p>
-
-              {latestDecision.warnings.length > 0 && (
-                <div className="p-3 rounded-xl bg-amber-950/60 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400" />
-                  <span>{latestDecision.warnings.join(" ")}</span>
+                <div className="flex items-center gap-3">
+                  <DecisionBadge decision={latestDecision.decision} size="lg" />
+                  <span className="text-xs text-slate-500 font-mono">
+                    Decision ID: {latestDecision.id}
+                  </span>
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Risk Meter */}
-            <div className="lg:col-span-4 rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-xl flex flex-col justify-between space-y-4">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                  Deterministic Policy Risk Score
-                </span>
-                <div className="flex items-baseline gap-2 mt-2">
+              <div className="flex items-center gap-4 text-right">
+                <div>
+                  <span className="text-[10px] font-bold uppercase text-slate-500 block">
+                    Risk Score
+                  </span>
                   <span
-                    className={`text-4xl font-extrabold font-mono ${
-                      latestDecision.riskScore <= 20
-                        ? "text-emerald-400"
-                        : latestDecision.riskScore <= 50
-                        ? "text-amber-400"
-                        : "text-rose-400"
+                    className={`text-2xl font-extrabold tabular-nums ${
+                      latestDecision.riskScore > 50
+                        ? "text-rose-600"
+                        : latestDecision.riskScore > 20
+                        ? "text-amber-600"
+                        : "text-emerald-700"
                     }`}
                   >
-                    {latestDecision.riskScore}
+                    {latestDecision.riskScore}/100
                   </span>
-                  <span className="text-sm text-slate-500">/ 100</span>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="w-full bg-surface-200 rounded-full h-2 mt-3 overflow-hidden border border-surface-border">
-                  <div
-                    className={`h-full transition-all duration-500 ${
-                      latestDecision.riskScore <= 20
-                        ? "bg-emerald-400"
-                        : latestDecision.riskScore <= 50
-                        ? "bg-amber-400"
-                        : "bg-rose-400"
-                    }`}
-                    style={{ width: `${latestDecision.riskScore}%` }}
-                  />
                 </div>
               </div>
+            </div>
 
-              <div className="text-[11px] text-slate-400 p-2.5 rounded-lg bg-surface-200 border border-surface-border">
-                {latestDecision.riskScore <= 20
-                  ? "✓ Safe: Fully compliant with user constraints."
-                  : latestDecision.riskScore <= 50
-                  ? "⚠ Moderate: Compliant, but human approval mandated."
-                  : "✕ Critical: Blocked due to policy drift or unauthorized action."}
+            {/* KPI Cards Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                <span className="text-[10px] font-bold text-slate-500 uppercase block">Product Name</span>
+                <span className="font-bold text-slate-900 line-clamp-1 mt-0.5">
+                  {latestDecision.proposal?.product || "Candidate Item"}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                <span className="text-[10px] font-bold text-slate-500 uppercase block">Merchant Store</span>
+                <span className="font-bold text-slate-900 line-clamp-1 mt-0.5">
+                  {latestDecision.proposal?.merchant || "Merchant"}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                <span className="text-[10px] font-bold text-slate-500 uppercase block">Proposed Amount</span>
+                <span className="font-extrabold text-slate-900 tabular-nums mt-0.5 block">
+                  ₹{latestDecision.proposal?.amount?.toLocaleString()} INR
+                </span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                <span className="text-[10px] font-bold text-slate-500 uppercase block">Drift Status</span>
+                <span
+                  className={`font-extrabold tabular-nums mt-0.5 block ${
+                    latestDecision.driftReport?.hasDrift ? "text-rose-600" : "text-emerald-700"
+                  }`}
+                >
+                  {latestDecision.driftReport?.hasDrift
+                    ? `DRIFT DETECTED (${latestDecision.driftReport.severity})`
+                    : "Zero Drift (Compliant)"}
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Violations Section (if any) */}
-          {latestDecision.violations.length > 0 && (
-            <div className="rounded-2xl bg-rose-950/40 border border-rose-500/40 p-6 shadow-xl space-y-4">
+          {/* Decision Trace View */}
+          <div className="fintech-card p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-surface-border">
               <div className="flex items-center gap-2">
-                <ShieldAlert className="w-5 h-5 text-rose-400" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                  Critical Policy Violations ({latestDecision.violations.length})
+                <Activity className="w-4 h-4 text-blue-600" />
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                  Deterministic Execution Trace
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono text-slate-400">6-Stage Evaluation Sequence</span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border text-center space-y-1">
+                <span className="text-[10px] font-mono font-bold text-slate-400 block">STEP 1</span>
+                <div className="font-bold text-slate-800">Proposal Ingest</div>
+                <span className="text-[10px] text-emerald-700 block font-semibold">✓ Received</span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border text-center space-y-1">
+                <span className="text-[10px] font-mono font-bold text-slate-400 block">STEP 2</span>
+                <div className="font-bold text-slate-800">Policy Whitelist</div>
+                <span className="text-[10px] text-emerald-700 block font-semibold">✓ Matched</span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border text-center space-y-1">
+                <span className="text-[10px] font-mono font-bold text-slate-400 block">STEP 3</span>
+                <div className="font-bold text-slate-800">Constraint Gate</div>
+                <span
+                  className={`text-[10px] block font-bold ${
+                    latestDecision.violations.length === 0 ? "text-emerald-700" : "text-rose-600"
+                  }`}
+                >
+                  {latestDecision.violations.length === 0 ? "✓ Passed" : `✕ ${latestDecision.violations.length} Failures`}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border text-center space-y-1">
+                <span className="text-[10px] font-mono font-bold text-slate-400 block">STEP 4</span>
+                <div className="font-bold text-slate-800">Drift Severity</div>
+                <span
+                  className={`text-[10px] block font-bold ${
+                    latestDecision.driftReport?.severity === "NONE" ? "text-emerald-700" : "text-amber-700"
+                  }`}
+                >
+                  {latestDecision.driftReport?.severity || "NONE"}
+                </span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border text-center space-y-1">
+                <span className="text-[10px] font-mono font-bold text-slate-400 block">STEP 5</span>
+                <div className="font-bold text-slate-800">Risk Assessment</div>
+                <span className="text-[10px] text-blue-700 block font-bold">
+                  {latestDecision.riskScore}/100
+                </span>
+              </div>
+
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border text-center space-y-1">
+                <span className="text-[10px] font-mono font-bold text-slate-400 block">STEP 6</span>
+                <div className="font-bold text-slate-800">Final Verdict</div>
+                <span
+                  className={`text-[10px] block font-bold uppercase ${
+                    latestDecision.decision === "ALLOW"
+                      ? "text-emerald-700"
+                      : latestDecision.decision === "ASK_APPROVAL"
+                      ? "text-amber-700"
+                      : "text-rose-600"
+                  }`}
+                >
+                  {latestDecision.decision}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Granular Policy Check Table */}
+          <div className="fintech-card p-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-surface-border">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-blue-600" />
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                  Granular Rule Verifications ({latestDecision.checks.length})
                 </h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {latestDecision.violations.map((violation, idx) => (
-                  <div
-                    key={idx}
-                    className="p-4 rounded-xl bg-surface-200/90 border border-surface-border space-y-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono font-bold text-rose-400">
-                        {violation.code}
-                      </span>
-                      {violation.deviation && (
-                        <span className="text-xs font-extrabold text-rose-300 bg-rose-950 px-2 py-0.5 rounded border border-rose-500/30">
-                          +₹{violation.deviation.toLocaleString()}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-200">{violation.explanation}</p>
-                    <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1 border-t border-surface-border">
-                      <div>Authorized: <strong className="text-slate-200">{String(violation.expected)}</strong></div>
-                      <div>Proposed: <strong className="text-rose-300">{String(violation.actual)}</strong></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Side-by-Side: Intent vs Proposed Agent Action */}
-          {latestDecision.proposal && selectedIntent && (
-            <div className="rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-xl space-y-4">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                Intent Policy vs Proposed Action Delta Comparison
-              </h3>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="text-slate-400 uppercase tracking-wider font-semibold border-b border-surface-border bg-surface-200/50">
-                    <tr>
-                      <th className="py-3 px-4">Policy Dimension</th>
-                      <th className="py-3 px-4">User Intent Limit</th>
-                      <th className="py-3 px-4">Agent Proposed Value</th>
-                      <th className="py-3 px-4">Evaluation Result</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-surface-border text-slate-300">
-                    {/* Budget */}
-                    <tr className="hover:bg-surface-200/50">
-                      <td className="py-3 px-4 font-semibold text-slate-200">Budget Limit</td>
-                      <td className="py-3 px-4 text-emerald-400 font-bold">
-                        ₹{selectedIntent.constraints.maxAmount?.toLocaleString()} Max
-                      </td>
-                      <td className="py-3 px-4 font-bold text-white">
-                        ₹{latestDecision.proposal.amount.toLocaleString()}
-                      </td>
-                      <td className="py-3 px-4">
-                        {latestDecision.proposal.amount > (selectedIntent.constraints.maxAmount || 0) ? (
-                          <span className="text-rose-400 font-bold">✕ Exceeds by +₹{(latestDecision.proposal.amount - (selectedIntent.constraints.maxAmount || 0)).toLocaleString()}</span>
-                        ) : (
-                          <span className="text-emerald-400 font-bold">✓ Within Budget</span>
-                        )}
-                      </td>
-                    </tr>
-
-                    {/* Merchant */}
-                    <tr className="hover:bg-surface-200/50">
-                      <td className="py-3 px-4 font-semibold text-slate-200">Merchant Whitelist</td>
-                      <td className="py-3 px-4">
-                        {selectedIntent.constraints.allowedMerchants
-                          ? selectedIntent.constraints.allowedMerchants.join(", ")
-                          : "Any Merchant"}
-                      </td>
-                      <td className="py-3 px-4 font-medium text-white">{latestDecision.proposal.merchant}</td>
-                      <td className="py-3 px-4">
-                        <span className="text-emerald-400 font-bold">✓ Verified</span>
-                      </td>
-                    </tr>
-
-                    {/* Action & Subscription */}
-                    <tr className="hover:bg-surface-200/50">
-                      <td className="py-3 px-4 font-semibold text-slate-200">Payment Action</td>
-                      <td className="py-3 px-4">One-Time Purchase Only</td>
-                      <td className="py-3 px-4 capitalize text-white">
-                        {latestDecision.proposal.isSubscription ? "Recurring Subscription" : latestDecision.proposal.action}
-                      </td>
-                      <td className="py-3 px-4">
-                        {latestDecision.proposal.isSubscription && !selectedIntent.permissions.canSubscribe ? (
-                          <span className="text-rose-400 font-bold">✕ Unauthorized Recurring Charge</span>
-                        ) : (
-                          <span className="text-emerald-400 font-bold">✓ Authorized</span>
-                        )}
-                      </td>
-                    </tr>
-
-                    {/* Approval Policy */}
-                    <tr className="hover:bg-surface-200/50">
-                      <td className="py-3 px-4 font-semibold text-slate-200">Approval Requirement</td>
-                      <td className="py-3 px-4">
-                        {selectedIntent.constraints.requiresApproval ? "Explicit Approval Required" : "Auto-Authorize Allowed"}
-                      </td>
-                      <td className="py-3 px-4 text-white">Candidate Payment</td>
-                      <td className="py-3 px-4">
-                        {selectedIntent.constraints.requiresApproval ? (
-                          <span className="text-amber-400 font-bold">⚠ Mandates Human Confirmation</span>
-                        ) : (
-                          <span className="text-emerald-400 font-bold">✓ Direct Execution Allowed</span>
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Granular Policy Checks Table */}
-          <div className="rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-xl space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                Granular Policy Checks Checklist ({latestDecision.checks.length})
-              </h3>
-
               {/* Filter Tabs */}
-              <div className="flex items-center gap-1 bg-surface-200 p-1 rounded-xl border border-surface-border text-xs">
-                {(["ALL", "PASS", "WARN", "FAIL"] as const).map((tab) => (
+              <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-surface-border text-xs">
+                {(["ALL", "PASS", "WARN", "FAIL"] as const).map((mode) => (
                   <button
-                    key={tab}
-                    onClick={() => setFilterCheck(tab)}
-                    className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                      filterCheck === tab
-                        ? "bg-primary text-white shadow-sm"
-                        : "text-slate-400 hover:text-slate-200"
+                    key={mode}
+                    onClick={() => setFilterCheck(mode)}
+                    className={`px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
+                      filterCheck === mode
+                        ? "bg-white text-blue-700 shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    {tab}
+                    {mode}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="space-y-2">
-              {filteredChecks.map((check) => (
-                <div
-                  key={check.id}
-                  className="p-3.5 rounded-xl bg-surface-200/80 border border-surface-border flex items-start justify-between gap-4"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5">
-                      {check.status === "PASS" ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      ) : check.status === "WARN" ? (
-                        <AlertTriangle className="w-4 h-4 text-amber-400" />
-                      ) : (
-                        <ShieldAlert className="w-4 h-4 text-rose-400" />
-                      )}
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-100">{check.name}</div>
-                      <p className="text-xs text-slate-300 mt-0.5">{check.message}</p>
-                    </div>
-                  </div>
-
-                  <span
-                    className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded ${
-                      check.status === "PASS"
-                        ? "bg-emerald-950 text-emerald-300 border border-emerald-500/30"
-                        : check.status === "WARN"
-                        ? "bg-amber-950 text-amber-300 border border-amber-500/30"
-                        : "bg-rose-950 text-rose-300 border border-rose-500/30"
-                    }`}
-                  >
-                    {check.status}
-                  </span>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-surface-border text-slate-500 uppercase text-[10px] tracking-wider bg-slate-50/50">
+                    <th className="py-2.5 px-3">Rule ID</th>
+                    <th className="py-2.5 px-3">Rule Name</th>
+                    <th className="py-2.5 px-3">Verification Details</th>
+                    <th className="py-2.5 px-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-surface-border">
+                  {filteredChecks.map((chk) => (
+                    <tr key={chk.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-3 px-3 font-mono text-[11px] text-slate-500 font-semibold">
+                        {chk.id}
+                      </td>
+                      <td className="py-3 px-3 font-bold text-slate-800">
+                        {chk.name}
+                      </td>
+                      <td className="py-3 px-3 text-slate-600">
+                        {chk.message}
+                      </td>
+                      <td className="py-3 px-3">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                            chk.status === "PASS"
+                              ? "status-pill-emerald"
+                              : chk.status === "WARN"
+                              ? "status-pill-amber"
+                              : "status-pill-rose"
+                          }`}
+                        >
+                          {chk.status === "PASS" && <CheckCircle2 className="w-3 h-3" />}
+                          {chk.status === "WARN" && <AlertTriangle className="w-3 h-3" />}
+                          {chk.status === "FAIL" && <ShieldAlert className="w-3 h-3" />}
+                          <span>{chk.status === "PASS" ? "PASSED" : chk.status === "WARN" ? "WARNING" : "FAILED"}</span>
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

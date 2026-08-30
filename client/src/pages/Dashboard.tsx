@@ -5,13 +5,10 @@ import {
   History,
   ArrowRight,
   CreditCard,
-  Layers,
   Bot,
   Zap,
   ShieldAlert,
-  CheckSquare,
   RotateCcw,
-  Activity,
   Server,
   Database,
   Cpu,
@@ -52,328 +49,174 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadDashboardData();
-
-    // 6-second dynamic live polling
-    const interval = setInterval(() => {
-      loadDashboardData();
-    }, 6000);
-
+    const interval = setInterval(loadDashboardData, 6000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      {/* Pitch Hero Section */}
-      <div className="relative rounded-2xl bg-gradient-to-r from-surface-100 via-surface-200 to-surface-100 border border-surface-border p-8 shadow-2xl overflow-hidden">
-        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 -mb-12 w-64 h-64 bg-accent-cyan/10 rounded-full blur-2xl pointer-events-none" />
-
-        <div className="relative z-10 max-w-4xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 border border-primary/40 text-primary-light text-xs font-bold uppercase tracking-wider">
-            <Zap className="w-3.5 h-3.5 text-primary-light" />
-            <span>AI Intent Accountability Layer</span>
-          </div>
-
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
-            AI Agents Can Act.
-            <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-400">
-              IntentLedger Makes Sure They Act Within User Intent.
+      {/* Commerce Governance Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-surface-border">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+              AI Commerce Accountability
             </span>
+            <span className="flex items-center gap-1.5 text-[11px] text-slate-500 font-mono">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              LIVE TELEMETRY • {lastUpdated}
+            </span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Commerce Governance
           </h1>
-
-          <p className="text-slate-300 text-sm md:text-base leading-relaxed">
-            IntentLedger is an intent accountability layer for AI and agentic commerce — translating natural-language authorization into enforceable policy, detecting intent drift, requiring approval when necessary, and creating an auditable decision trail.
+          <p className="text-xs md:text-sm text-slate-600 mt-1">
+            Monitor AI-driven purchasing decisions, approvals, payments and audit activity.
           </p>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Link
-              to="/demo"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary via-indigo-600 to-accent-violet hover:from-primary-hover hover:to-indigo-500 text-white text-sm font-extrabold shadow-glow transition-all active:scale-95"
-            >
-              <Zap className="w-4 h-4 text-amber-300" />
-              <span>Launch Judge Demo Mode</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+        <div className="flex items-center gap-3 self-start md:self-auto">
+          <Link
+            to="/studio"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>+ Create Intent</span>
+          </Link>
+          <Link
+            to="/simulation"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white hover:bg-slate-50 border border-surface-border text-slate-700 text-xs font-semibold transition-all shadow-sm"
+          >
+            <Zap className="w-3.5 h-3.5 text-amber-500" />
+            <span>Run Simulation</span>
+          </Link>
+        </div>
+      </div>
 
-            <Link
-              to="/payment"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-50/80 hover:bg-surface-50 border border-surface-border hover:border-surface-borderHover text-slate-200 text-sm font-semibold transition-all"
-            >
-              <CreditCard className="w-4 h-4 text-emerald-400" />
-              <span>Payment Gate & Rail</span>
-            </Link>
+      {/* 4-Card Primary KPI Metric Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Active Intents */}
+        <div className="fintech-card p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Intents</span>
+            <div className="p-2 rounded-lg bg-blue-50 border border-blue-100 text-blue-600">
+              <Sparkles className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="text-3xl font-extrabold text-slate-900 tabular-nums tracking-tight">
+              {loading ? "..." : summary?.activeIntents ?? intents.length}
+            </div>
+            <span className="text-[11px] text-slate-500 mt-1 block font-medium">
+              Enforced policy boundaries
+            </span>
+          </div>
+        </div>
 
-            <Link
-              to="/replay"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-50/80 hover:bg-surface-50 border border-surface-border hover:border-surface-borderHover text-slate-200 text-sm font-semibold transition-all"
-            >
-              <RotateCcw className="w-4 h-4 text-cyan-400" />
-              <span>Forensic Replay</span>
-            </Link>
+        {/* Card 2: Decisions Evaluated */}
+        <div className="fintech-card p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Decisions Evaluated</span>
+            <div className="p-2 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600">
+              <Bot className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="text-3xl font-extrabold text-slate-900 tabular-nums tracking-tight">
+              {loading ? "..." : summary?.decisionsEvaluated ?? 0}
+            </div>
+            <span className="text-[11px] text-slate-500 mt-1 block font-medium">
+              Deterministic policy checks
+            </span>
+          </div>
+        </div>
+
+        {/* Card 3: Blocked Transactions */}
+        <div className="fintech-card p-5 flex flex-col justify-between border-rose-200">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-rose-700 uppercase tracking-wider">Blocked Transactions</span>
+            <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-600">
+              <ShieldAlert className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="text-3xl font-extrabold text-rose-600 tabular-nums tracking-tight">
+              {loading ? "..." : summary?.blockedActions ?? 0}
+            </div>
+            <span className="text-[11px] text-slate-500 mt-1 block font-medium">
+              Halted before financial exposure
+            </span>
+          </div>
+        </div>
+
+        {/* Card 4: Settled Payments */}
+        <div className="fintech-card p-5 flex flex-col justify-between border-emerald-200">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Settled Payments</span>
+            <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-600">
+              <CreditCard className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="text-3xl font-extrabold text-emerald-700 tabular-nums tracking-tight">
+              {loading ? "..." : summary?.successfulPayments ?? 0}
+            </div>
+            <span className="text-[11px] text-slate-500 mt-1 block font-medium">
+              Cryptographically verified
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Live System Engine Status Bar */}
-      <div className="rounded-2xl bg-surface-100 border border-surface-border p-4 shadow-lg">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-            </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
-              Live System Status
-            </span>
-            <span className="text-[11px] text-slate-500 font-mono">
-              • Auto-refreshing (Last: {lastUpdated})
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-surface-200 border border-surface-border">
-              <Server className="w-3.5 h-3.5 text-indigo-400" />
-              <div>
-                <span className="text-[9px] text-slate-500 block uppercase font-bold">API</span>
-                <span className="text-[11px] font-bold text-emerald-400">● ONLINE</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-surface-200 border border-surface-border">
-              <Database className="w-3.5 h-3.5 text-cyan-400" />
-              <div>
-                <span className="text-[9px] text-slate-500 block uppercase font-bold">DATABASE</span>
-                <span className="text-[11px] font-bold text-emerald-400">
-                  ● {health?.database.type === "mongodb" ? "MONGODB" : "IN-MEMORY"}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-surface-200 border border-surface-border">
-              <Cpu className="w-3.5 h-3.5 text-purple-400" />
-              <div>
-                <span className="text-[9px] text-slate-500 block uppercase font-bold">AI COMPILER</span>
-                <span className="text-[11px] font-bold text-purple-300">
-                  ● {health?.aiCompiler.mode === "ready" ? "GEMINI AI" : "RULE ENGINE"}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-surface-200 border border-surface-border">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <div>
-                <span className="text-[9px] text-slate-500 block uppercase font-bold">POLICY ENGINE</span>
-                <span className="text-[11px] font-bold text-emerald-400">● ACTIVE</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-surface-200 border border-surface-border">
-              <Activity className="w-3.5 h-3.5 text-amber-300" />
-              <div>
-                <span className="text-[9px] text-slate-500 block uppercase font-bold">PAYMENT RAIL</span>
-                <span className="text-[11px] font-bold text-amber-300">
-                  ● {health?.paymentRail.mode === "razorpay_test" ? "RAZORPAY TEST" : "SIMULATED"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Real-Time KPI Statistics Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        {/* Stat 1 */}
-        <div className="rounded-xl bg-surface-100 border border-surface-border p-4 hover:border-primary/50 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase text-slate-400">Intents</span>
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-          </div>
-          <div className="text-xl font-extrabold text-white mt-2">
-            {loading ? "..." : summary?.activeIntents ?? intents.length}
-          </div>
-          <div className="text-[10px] text-slate-500 mt-0.5">Enforced limits</div>
-        </div>
-
-        {/* Stat 2 */}
-        <div className="rounded-xl bg-surface-100 border border-surface-border p-4 hover:border-primary/50 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase text-slate-400">Evaluated</span>
-            <Bot className="w-3.5 h-3.5 text-purple-400" />
-          </div>
-          <div className="text-xl font-extrabold text-white mt-2">
-            {loading ? "..." : summary?.decisionsEvaluated ?? 0}
-          </div>
-          <div className="text-[10px] text-slate-500 mt-0.5">Policy checks</div>
-        </div>
-
-        {/* Stat 3 */}
-        <div className="rounded-xl bg-surface-100 border border-rose-500/40 p-4 hover:border-rose-500 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase text-rose-300">Drift Alerts</span>
-            <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
-          </div>
-          <div className="text-xl font-extrabold text-rose-400 mt-2">
-            {loading ? "..." : summary?.driftDetected ?? 0}
-          </div>
-          <div className="text-[10px] text-slate-500 mt-0.5">Deviations flagged</div>
-        </div>
-
-        {/* Stat 4 */}
-        <div className="rounded-xl bg-surface-100 border border-amber-500/40 p-4 hover:border-amber-500 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase text-amber-300">Approvals</span>
-            <CheckSquare className="w-3.5 h-3.5 text-amber-400" />
-          </div>
-          <div className="text-xl font-extrabold text-amber-400 mt-2">
-            {loading ? "..." : summary?.approvalRequests ?? 0}
-          </div>
-          <div className="text-[10px] text-slate-500 mt-0.5">Human reviews</div>
-        </div>
-
-        {/* Stat 5 */}
-        <div className="rounded-xl bg-surface-100 border border-emerald-500/40 p-4 hover:border-emerald-500 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase text-emerald-300">Settled</span>
-            <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
-          </div>
-          <div className="text-xl font-extrabold text-emerald-400 mt-2">
-            {loading ? "..." : summary?.successfulPayments ?? 0}
-          </div>
-          <div className="text-[10px] text-slate-500 mt-0.5">Verified payments</div>
-        </div>
-
-        {/* Stat 6 */}
-        <div className="rounded-xl bg-surface-100 border border-rose-500/40 p-4 hover:border-rose-500 transition-all">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase text-rose-300">Blocked</span>
-            <Layers className="w-3.5 h-3.5 text-rose-400" />
-          </div>
-          <div className="text-xl font-extrabold text-rose-400 mt-2">
-            {loading ? "..." : summary?.blockedActions ?? 0}
-          </div>
-          <div className="text-[10px] text-slate-500 mt-0.5">Halted at gate</div>
-        </div>
-      </div>
-
-      {/* Visual Pipeline Flow */}
-      <PipelineFlow />
-
-      {/* 2-Column: Active Intents & Live Activity Feed */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Active Intents */}
-        <div className="rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-lg flex flex-col justify-between">
+      {/* Main 2-Column Content: Live Governance Activity & System Health */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column (2 spans): Live Governance Activity */}
+        <div className="lg:col-span-2 fintech-card p-6 flex flex-col justify-between space-y-4">
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-surface-border">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-400" />
-                <h3 className="text-base font-bold text-white">Active Intent Policies</h3>
-              </div>
-              <Link
-                to="/studio"
-                className="text-xs font-semibold text-primary-light hover:text-white flex items-center gap-1 transition-colors"
-              >
-                <span>+ Add Intent</span>
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-
-            {loading ? (
-              <div className="py-8 text-center text-slate-500 text-xs animate-pulse">
-                Loading active intents...
-              </div>
-            ) : intents.length === 0 ? (
-              <div className="py-8 text-center text-slate-500 text-xs">
-                No active intents found. Create your first intent in Intent Studio.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {intents.slice(0, 3).map((intent) => (
-                  <div
-                    key={intent.id}
-                    className="p-3.5 rounded-xl bg-surface-200 border border-surface-border hover:border-surface-borderHover transition-all"
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-bold text-slate-200">
-                        {intent.category.toUpperCase()} • Max ₹{intent.constraints.maxAmount?.toLocaleString()}
-                      </span>
-                      <StatusPill status={intent.status} />
-                    </div>
-                    <p className="text-xs text-slate-300 italic line-clamp-2">
-                      "{intent.rawText}"
-                    </p>
-                    <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
-                      <span className="px-2 py-0.5 rounded bg-surface-100 border border-surface-border">
-                        {intent.constraints.requiresApproval ? "Approval Mandated" : "Auto-Authorize"}
-                      </span>
-                      {intent.constraints.productCategory && (
-                        <span className="px-2 py-0.5 rounded bg-surface-100 border border-surface-border text-slate-300">
-                          {intent.constraints.productCategory}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-surface-border flex justify-end">
-            <Link
-              to="/studio"
-              className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
-            >
-              <span>Explore all intents in Intent Studio</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Live Activity Stream */}
-        <div className="rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-lg flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <History className="w-4 h-4 text-purple-400" />
-                <h3 className="text-base font-bold text-white">Live Activity Stream</h3>
+                <History className="w-4 h-4 text-blue-600" />
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Live Governance Activity
+                </h3>
               </div>
               <Link
                 to="/ledger"
-                className="text-xs font-semibold text-primary-light hover:text-white flex items-center gap-1 transition-colors"
+                className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"
               >
-                <span>Full Ledger</span>
+                <span>Audit Ledger</span>
                 <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
             {loading ? (
-              <div className="py-8 text-center text-slate-500 text-xs animate-pulse">
-                Loading live activity...
+              <div className="py-12 text-center text-slate-400 text-xs animate-pulse">
+                Loading live activity events...
               </div>
             ) : ledgerEvents.length === 0 ? (
-              <div className="py-8 text-center text-slate-500 text-xs">
-                No activity logged yet.
+              <div className="py-12 text-center text-slate-400 text-xs">
+                No activity logged yet. Create an intent or run a simulation.
               </div>
             ) : (
-              <div className="space-y-3">
-                {ledgerEvents.slice(0, 4).map((evt) => (
+              <div className="space-y-2.5">
+                {ledgerEvents.slice(0, 5).map((evt) => (
                   <div
                     key={evt.id}
-                    className="p-3.5 rounded-xl bg-surface-200 border border-surface-border hover:border-surface-borderHover transition-all flex items-start gap-3"
+                    className="p-3 rounded-lg bg-surface-50 border border-surface-border hover:border-surface-borderHover transition-all flex items-start gap-3"
                   >
-                    <div className="w-7 h-7 rounded-lg bg-surface-100 border border-surface-border flex items-center justify-center text-slate-300 text-xs font-bold shrink-0 mt-0.5">
-                      {evt.actor === "USER" ? "U" : evt.actor === "AI_AGENT" ? "AI" : evt.actor === "PAYMENT_GATEWAY" ? "PG" : "ENG"}
+                    <div className="w-8 h-8 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 text-[10px] font-mono font-bold shrink-0 mt-0.5">
+                      {evt.actor === "USER" ? "USR" : evt.actor === "AI_AGENT" ? "AGT" : evt.actor === "PAYMENT_GATEWAY" ? "PAY" : "ENG"}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider">
+                        <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wide">
                           {evt.eventType.replace(/_/g, " ")}
                         </span>
-                        <span className="text-[10px] text-slate-500 font-mono">
-                          {new Date(evt.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                        <span className="text-[10px] text-slate-400 font-mono tabular-nums">
+                          {new Date(evt.timestamp).toLocaleTimeString()}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-300 mt-1 line-clamp-2 font-medium">
+                      <p className="text-xs text-slate-600 mt-1 line-clamp-1 font-normal">
                         {evt.summary}
                       </p>
                     </div>
@@ -383,17 +226,107 @@ export const Dashboard: React.FC = () => {
             )}
           </div>
 
-          <div className="mt-4 pt-3 border-t border-surface-border flex justify-end">
-            <Link
-              to="/ledger"
-              className="text-xs font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1"
-            >
-              <span>View full immutable ledger</span>
-              <ArrowRight className="w-3 h-3" />
+          <div className="pt-3 border-t border-surface-border flex items-center justify-between text-xs text-slate-500">
+            <span>Showing latest 5 immutable audit events</span>
+            <Link to="/replay" className="text-blue-600 hover:text-blue-800 flex items-center gap-1 font-semibold">
+              <span>Replay Timeline</span>
+              <RotateCcw className="w-3 h-3" />
             </Link>
           </div>
         </div>
+
+        {/* Right Column (1 span): System Health */}
+        <div className="fintech-card p-6 flex flex-col justify-between space-y-4">
+          <div>
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-surface-border">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  System Health
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">
+                ACTIVE
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {/* API Status */}
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Server className="w-4 h-4 text-blue-600" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">Express API Engine</div>
+                    <div className="text-[10px] text-slate-500 font-mono">Port :5000</div>
+                  </div>
+                </div>
+                <StatusPill status="OPERATIONAL" />
+              </div>
+
+              {/* Database Status */}
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Database className="w-4 h-4 text-cyan-600" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">Database Layer</div>
+                    <div className="text-[10px] text-slate-500 font-mono">
+                      {health?.database.type === "mongodb" ? "MongoDB Atlas" : "In-Memory Store"}
+                    </div>
+                  </div>
+                </div>
+                <StatusPill status={health?.database.type === "mongodb" ? "OPERATIONAL" : "IN-MEMORY"} />
+              </div>
+
+              {/* AI Compiler Status */}
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Cpu className="w-4 h-4 text-purple-600" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">AI Compiler</div>
+                    <div className="text-[10px] text-slate-500 font-mono">
+                      {health?.aiCompiler.mode === "ready" ? "Gemini 3.6 Flash" : "Rule Engine"}
+                    </div>
+                  </div>
+                </div>
+                <StatusPill status={health?.aiCompiler.mode === "ready" ? "OPERATIONAL" : "FALLBACK"} />
+              </div>
+
+              {/* Payment Rail Status */}
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <CreditCard className="w-4 h-4 text-amber-600" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">Payment Rail</div>
+                    <div className="text-[10px] text-slate-500 font-mono">
+                      {health?.paymentRail.mode === "razorpay_test" ? "Razorpay Test Rail" : "Simulated Sandbox"}
+                    </div>
+                  </div>
+                </div>
+                <StatusPill status={health?.paymentRail.mode === "razorpay_test" ? "TEST MODE" : "SANDBOX"} />
+              </div>
+
+              {/* Ledger Status */}
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">Audit Ledger</div>
+                    <div className="text-[10px] text-slate-500 font-mono">Append-Only Immutability</div>
+                  </div>
+                </div>
+                <StatusPill status="OPERATIONAL" />
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-surface-border text-[11px] text-slate-500 text-center font-medium">
+            Truthful telemetry updated every 6 seconds
+          </div>
+        </div>
       </div>
+
+      {/* Governance Pipeline Flow */}
+      <PipelineFlow />
     </div>
   );
 };

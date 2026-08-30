@@ -4,13 +4,12 @@ import {
   CheckSquare,
   CheckCircle2,
   XCircle,
-  AlertTriangle,
   ArrowRight,
   RefreshCw,
-  Key,
-  CreditCard,
+  Lock,
+  UserCheck,
 } from "lucide-react";
-import { DecisionBadge } from "../components/StatusBadge";
+import { StatusPill } from "../components/StatusBadge";
 import { apiService } from "../services/api";
 import { ApprovalRequest } from "../types";
 
@@ -84,42 +83,46 @@ export const ApprovalsPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-surface-border">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-500/30 text-amber-300 text-xs font-semibold uppercase tracking-wider mb-2">
-            Human-in-the-Loop Governance
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+              Human-in-the-Loop Governance
+            </span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white">Approval Center</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Review and authorize pending agent payment requests requiring explicit human confirmation before money moves.
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Approval Center
+          </h1>
+          <p className="text-xs md:text-sm text-slate-600 mt-1">
+            Human authorization queue for transactions requiring additional trust before money moves.
           </p>
         </div>
 
         {/* Filter Toggle */}
-        <div className="flex items-center gap-2 bg-surface-100 p-1.5 rounded-xl border border-surface-border self-start md:self-auto">
+        <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-surface-border self-start md:self-auto text-xs">
           <button
             onClick={() => setFilterMode("pending")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`px-3 py-1.5 rounded-md font-bold transition-all ${
               filterMode === "pending"
-                ? "bg-primary text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-white text-blue-700 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            Pending Queue ({approvals.filter((a) => a.status === "PENDING").length})
+            Pending Reviews
           </button>
           <button
             onClick={() => setFilterMode("all")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`px-3 py-1.5 rounded-md font-bold transition-all ${
               filterMode === "all"
-                ? "bg-primary text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-white text-blue-700 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            All History
+            All Historical
           </button>
           <button
-            onClick={() => fetchApprovals(filterMode)}
-            className="p-1.5 text-slate-400 hover:text-slate-200"
+            onClick={() => fetchApprovals()}
+            className="p-1.5 text-slate-500 hover:text-slate-900 ml-1"
             title="Refresh"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -127,178 +130,153 @@ export const ApprovalsPage: React.FC = () => {
         </div>
       </div>
 
-      {loading ? (
-        <div className="py-20 text-center text-slate-500 text-xs animate-pulse">
-          Loading approval requests...
-        </div>
-      ) : approvals.length === 0 ? (
-        <div className="rounded-2xl bg-surface-100 border border-surface-border p-12 text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-surface-200 border border-surface-border mx-auto flex items-center justify-center text-emerald-400">
-            <CheckSquare className="w-6 h-6" />
+      {/* Global Alerts */}
+      {actionSuccessMsg && (
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div>
+              <span className="font-bold">{actionSuccessMsg.msg}</span>
+              {actionSuccessMsg.token && (
+                <div className="font-mono text-[11px] text-emerald-900 mt-0.5 font-semibold">
+                  Token: {actionSuccessMsg.token}
+                </div>
+              )}
+            </div>
           </div>
-          <h3 className="text-base font-bold text-white">No Pending Approvals</h3>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
-            All agent proposals are either fully cleared, blocked, or processed. You can trigger an approval request in the Simulation Lab.
-          </p>
           <Link
-            to="/simulation"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-glow transition-all"
+            to="/payment"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold shrink-0 self-start sm:self-auto shadow-sm"
           >
-            <span>Simulate Agent Proposal</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>Proceed to Payment Gate</span>
+            <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
+      )}
+
+      {actionErrorMsg && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+          <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          <span className="font-semibold">{actionErrorMsg.msg}</span>
+        </div>
+      )}
+
+      {/* Approvals Queue */}
+      {loading ? (
+        <div className="py-24 text-center text-slate-400 text-xs animate-pulse">
+          Loading approval requests from backend...
+        </div>
+      ) : approvals.length === 0 ? (
+        <div className="fintech-card p-12 text-center space-y-3">
+          <UserCheck className="w-10 h-10 text-slate-400 mx-auto" />
+          <h3 className="text-sm font-bold text-slate-900">No Approval Requests in Queue</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            {filterMode === "pending"
+              ? "All transactions are currently reviewed or auto-authorized."
+              : "No historical approval records found."}
+          </p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {approvals.map((req) => {
-            const isPending = req.status === "PENDING";
-            const isApproved = req.status === "APPROVED";
-            const isRejected = req.status === "REJECTED";
-            const isActionLoading = actionLoadingId === req.id;
-            const currencySym = req.currency === "INR" ? "₹" : "$";
-
-            return (
-              <div
-                key={req.id}
-                className={`rounded-2xl border p-6 shadow-xl space-y-5 transition-all relative overflow-hidden ${
-                  isApproved
-                    ? "bg-surface-100/90 border-emerald-500/40"
-                    : isRejected
-                    ? "bg-surface-100/90 border-slate-700 opacity-80"
-                    : "bg-surface-100 border-surface-border hover:border-amber-500/40"
-                }`}
-              >
-                {/* Top Status & Timestamp */}
-                <div className="flex items-center justify-between">
+        <div className="space-y-4">
+          {approvals.map((req) => (
+            <div
+              key={req.id}
+              className="fintech-card p-6 space-y-4 hover:border-slate-300 transition-all"
+            >
+              {/* Top Row: Product, Amount, Status */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-surface-border">
+                <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono font-bold text-indigo-300">
-                      {req.id}
+                    <span className="text-[10px] font-mono text-slate-500 font-semibold">
+                      REQ: {req.id}
                     </span>
-                    <span className="text-[10px] text-slate-500">•</span>
-                    <span className="text-[10px] text-slate-400">
-                      {new Date(req.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    </span>
+                    <StatusPill status={req.status} />
                   </div>
-
-                  {isPending ? (
-                    <DecisionBadge decision="ASK_APPROVAL" size="sm" />
-                  ) : isApproved ? (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold tracking-wider uppercase">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                      Approved
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-500/40 text-[10px] font-extrabold tracking-wider uppercase">
-                      <XCircle className="w-3 h-3 text-rose-400" />
-                      Rejected
-                    </span>
-                  )}
-                </div>
-
-                {/* Candidate Action Card */}
-                <div className="p-4 rounded-xl bg-surface-200 border border-surface-border space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase text-purple-400 block mb-0.5">
-                        Autonomous Agent Request
-                      </span>
-                      <h3 className="text-sm font-bold text-white">{req.proposal.product}</h3>
-                      <div className="text-xs text-slate-400 mt-0.5">
-                        Merchant: <strong className="text-slate-200">{req.proposal.merchant}</strong>
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Amount</span>
-                      <span className="text-lg font-extrabold text-emerald-400">
-                        {currencySym}{req.requestedAmount.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Why Approval Is Required */}
-                  <div className="pt-2 border-t border-surface-border text-xs text-slate-300 flex items-start gap-2">
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                    <span>{req.reason}</span>
+                  <h3 className="text-base font-bold text-slate-900 mt-1">
+                    {req.proposalSnapshot.product}
+                  </h3>
+                  <div className="text-xs text-slate-500">
+                    Merchant: <span className="text-slate-800 font-semibold">{req.proposalSnapshot.merchant}</span>
                   </div>
                 </div>
 
-                {/* Cryptographic Token Display if Approved */}
-                {isApproved && req.approvalToken && (
-                  <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase text-emerald-400 flex items-center gap-1">
-                        <Key className="w-3 h-3 text-emerald-400" />
-                        <span>Cryptographic Approval Token Issued</span>
-                      </span>
-                      <span className="text-[9px] font-mono text-emerald-300">Server Verified</span>
-                    </div>
-                    <div className="font-mono text-[11px] text-emerald-300 truncate bg-surface-300/80 p-2 rounded border border-emerald-500/20">
-                      {req.approvalToken}
-                    </div>
+                <div className="text-left sm:text-right">
+                  <div className="text-[10px] font-bold text-slate-500 uppercase">
+                    Authorization Amount
                   </div>
-                )}
-
-                {/* Success / Error Messages */}
-                {actionSuccessMsg?.id === req.id && (
-                  <div className="p-3 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-                    <span>{actionSuccessMsg.msg}</span>
+                  <div className="text-2xl font-extrabold text-slate-900 tabular-nums mt-0.5">
+                    ₹{req.proposalSnapshot.amount?.toLocaleString()} <span className="text-xs font-mono text-slate-500">INR</span>
                   </div>
-                )}
-
-                {actionErrorMsg?.id === req.id && (
-                  <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
-                    <XCircle className="w-4 h-4 shrink-0 text-rose-400" />
-                    <span>{actionErrorMsg.msg}</span>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="pt-2 flex items-center justify-between gap-3">
-                  {isPending ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => handleReject(req.id)}
-                        disabled={isActionLoading}
-                        className="flex-1 py-2.5 px-4 rounded-xl bg-surface-200 hover:bg-rose-950/80 border border-surface-border hover:border-rose-500/40 text-slate-300 hover:text-rose-300 text-xs font-bold transition-all disabled:opacity-50"
-                      >
-                        Reject
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleApprove(req.id)}
-                        disabled={isActionLoading}
-                        className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-extrabold shadow-glow-emerald transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
-                      >
-                        {isActionLoading ? (
-                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                        )}
-                        <span>Approve Purchase</span>
-                      </button>
-                    </>
-                  ) : isApproved ? (
-                    <Link
-                      to="/payment"
-                      state={{ approvalId: req.id, approvalToken: req.approvalToken, intentId: req.intentId, proposal: req.proposal }}
-                      className="w-full py-2.5 px-4 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-extrabold text-center shadow-glow transition-all flex items-center justify-center gap-2"
-                    >
-                      <CreditCard className="w-4 h-4" />
-                      <span>Continue to Payment Gate</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  ) : (
-                    <div className="w-full text-center text-xs text-slate-500 font-semibold py-1">
-                      Payment execution is permanently disabled for this rejected proposal.
-                    </div>
-                  )}
                 </div>
               </div>
-            );
-          })}
+
+              {/* Middle Row: Snapshot & Policy Metadata */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Bound Intent ID</span>
+                  <span className="font-mono text-slate-700 truncate block mt-0.5 font-semibold">
+                    {req.intentId}
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Requested At</span>
+                  <span className="font-mono text-slate-700 block mt-0.5 tabular-nums">
+                    {new Date(req.createdAt).toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Authorization TTL</span>
+                  <span className="font-mono text-amber-800 font-bold block mt-0.5">
+                    {req.status === "PENDING"
+                      ? "10-Minute Expiry Limit"
+                      : req.expiresAt
+                      ? `Expires: ${new Date(req.expiresAt).toLocaleTimeString()}`
+                      : "Expired"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Cryptographic Snapshot Hash Proof */}
+              {req.status === "APPROVED" && req.approvalToken && (
+                <div className="p-3.5 rounded-lg bg-blue-50 border border-blue-200 text-xs space-y-1">
+                  <div className="flex items-center gap-1.5 text-blue-800 font-bold uppercase text-[10px]">
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>Cryptographic Proposal Snapshot Hash Bound</span>
+                  </div>
+                  <div className="font-mono text-[11px] text-blue-900 break-all font-semibold">
+                    Token: {req.approvalToken}
+                  </div>
+                  <div className="text-[10px] text-slate-600">
+                    Any modification of amount or merchant at the Payment Gate will result in immediate 403 context rejection.
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              {req.status === "PENDING" && (
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    onClick={() => handleReject(req.id)}
+                    disabled={actionLoadingId === req.id}
+                    className="px-4 py-2 rounded-lg bg-white hover:bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold transition-all disabled:opacity-50 shadow-2xs"
+                  >
+                    Reject Transaction
+                  </button>
+
+                  <button
+                    onClick={() => handleApprove(req.id)}
+                    disabled={actionLoadingId === req.id}
+                    className="flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                  >
+                    <CheckSquare className="w-3.5 h-3.5" />
+                    <span>{actionLoadingId === req.id ? "Authorizing..." : "Approve Request"}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

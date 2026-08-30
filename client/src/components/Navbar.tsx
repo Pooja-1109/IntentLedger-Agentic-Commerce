@@ -1,79 +1,120 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Sparkles, Cpu, RefreshCw } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { Sparkles, Cpu, RefreshCw, Menu } from "lucide-react";
 import { HealthCheckData } from "../services/api";
 
 interface NavbarProps {
   health: HealthCheckData | null;
   loadingHealth: boolean;
   onRefreshHealth: () => void;
+  onOpenMobileMenu?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ health, loadingHealth, onRefreshHealth }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  health,
+  loadingHealth,
+  onRefreshHealth,
+  onOpenMobileMenu,
+}) => {
+  const location = useLocation();
   const isHealthy = health?.status === "healthy";
 
+  const getBreadcrumb = () => {
+    switch (location.pathname) {
+      case "/":
+        return { section: "Overview", title: "Dashboard" };
+      case "/demo":
+        return { section: "Overview", title: "Judge Demo" };
+      case "/studio":
+        return { section: "Overview", title: "Intent Studio" };
+      case "/simulation":
+        return { section: "Overview", title: "Agent Simulation" };
+      case "/decisions":
+        return { section: "Governance", title: "Decision Center" };
+      case "/approvals":
+        return { section: "Governance", title: "Approval Center" };
+      case "/payment":
+        return { section: "Governance", title: "Payment Gate" };
+      case "/ledger":
+        return { section: "Audit & Security", title: "Audit Ledger" };
+      case "/replay":
+        return { section: "Audit & Security", title: "Forensic Replay" };
+      case "/security":
+        return { section: "Audit & Security", title: "Security Center" };
+      default:
+        return { section: "Platform", title: "Commerce Governance" };
+    }
+  };
+
+  const breadcrumb = getBreadcrumb();
+
   return (
-    <header className="h-16 bg-surface-200/80 backdrop-blur-md border-b border-surface-border sticky top-0 z-30 px-6 flex items-center justify-between">
-      {/* Title & Core message */}
-      <div className="flex items-center gap-4">
-        <div className="hidden sm:flex items-center gap-2 text-xs text-slate-400">
-          <span className="text-slate-200 font-semibold">Intent Accountability Gateway</span>
-          <span>/</span>
-          <span className="text-indigo-400 font-medium">Deterministic Safety Engine</span>
+    <header className="h-16 bg-white border-b border-surface-border sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between shadow-sm">
+      {/* Left Breadcrumb & Mobile Menu Toggle */}
+      <div className="flex items-center gap-3">
+        {onOpenMobileMenu && (
+          <button
+            onClick={onOpenMobileMenu}
+            className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-slate-400 font-medium hidden sm:inline">{breadcrumb.section}</span>
+          <span className="text-slate-300 hidden sm:inline">/</span>
+          <span className="text-slate-900 font-bold text-sm">{breadcrumb.title}</span>
         </div>
       </div>
 
-      {/* Right Controls & Health Status */}
-      <div className="flex items-center gap-3">
-        {/* Backend Live Status Pill */}
-        <div
+      {/* Right Telemetry Controls */}
+      <div className="flex items-center gap-2.5">
+        {/* Live Engine Status Pill */}
+        <button
           onClick={onRefreshHealth}
-          className="cursor-pointer group flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-100 border border-surface-border hover:border-surface-borderHover transition-all text-xs"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-50 border border-surface-border hover:border-surface-borderHover transition-all text-xs"
           title="Click to re-verify backend connectivity"
         >
-          <div className="relative flex items-center justify-center">
+          <span className="relative flex h-2 w-2">
             <span
-              className={`w-2 h-2 rounded-full ${
-                isHealthy ? "bg-emerald-400 shadow-glow-emerald" : "bg-rose-400 shadow-glow-rose"
+              className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                isHealthy ? "animate-ping bg-emerald-400" : "bg-rose-400"
               }`}
             />
-            {isHealthy && (
-              <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75" />
-            )}
-          </div>
+            <span
+              className={`relative inline-flex rounded-full h-2 w-2 ${
+                isHealthy ? "bg-emerald-500" : "bg-rose-500"
+              }`}
+            />
+          </span>
 
-          <div className="flex items-center gap-1.5">
-            <span className="font-semibold text-slate-200">
-              {isHealthy ? "API Engine" : "Engine Offline"}
-            </span>
-            <span className="text-slate-400 text-[11px]">
-              {loadingHealth ? "checking..." : isHealthy ? "Online :5000" : "Disconnected"}
-            </span>
-          </div>
+          <span className="font-semibold text-slate-700 text-[11px] hidden sm:inline">
+            {isHealthy ? "Engine Active" : "Engine Offline"}
+          </span>
 
           <RefreshCw
-            className={`w-3 h-3 text-slate-400 group-hover:text-slate-200 transition-transform ${
-              loadingHealth ? "animate-spin" : ""
+            className={`w-3 h-3 text-slate-400 ${
+              loadingHealth ? "animate-spin text-primary" : ""
             }`}
           />
-        </div>
+        </button>
 
-        {/* Storage / Database Indicator */}
-        <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-100/60 border border-surface-border text-xs text-slate-300">
-          <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="font-medium text-slate-400">Storage:</span>
-          <span className="font-semibold text-slate-200">
-            {health?.database.type === "mongodb" ? "MongoDB" : "In-Memory Active"}
+        {/* Database Persistence Pill */}
+        <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-50 border border-surface-border text-xs text-slate-600 font-mono">
+          <Cpu className="w-3.5 h-3.5 text-blue-600" />
+          <span className="text-slate-800 font-semibold text-[11px]">
+            {health?.database.type === "mongodb" ? "MongoDB Atlas" : "In-Memory"}
           </span>
         </div>
 
-        {/* Quick Action Button */}
+        {/* Quick Action */}
         <Link
           to="/studio"
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold shadow-glow transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
         >
           <Sparkles className="w-3.5 h-3.5" />
-          <span>New Intent</span>
+          <span className="hidden sm:inline">+ Create Intent</span>
         </Link>
       </div>
     </header>

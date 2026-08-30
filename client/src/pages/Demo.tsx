@@ -1,31 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  Sparkles,
-  Bot,
   ShieldAlert,
-  ShieldCheck,
-  CheckCircle2,
-  AlertTriangle,
   ArrowRight,
-  RefreshCw,
   Zap,
   CreditCard,
-  History,
   RotateCcw,
   CheckSquare,
-  Key,
   HelpCircle,
+  Lock,
 } from "lucide-react";
 import { DecisionBadge } from "../components/StatusBadge";
 import { apiService, HealthCheckData } from "../services/api";
-import { Intent, DecisionResult, ApprovalRequest, PaymentExecution, LedgerEvent } from "../types";
+import { Intent, DecisionResult, ApprovalRequest, PaymentExecution } from "../types";
 
 type DemoScenarioKey = "safe" | "drift" | "subscription" | "tampering";
 
 export const DemoPage: React.FC = () => {
   const [activeScenario, setActiveScenario] = useState<DemoScenarioKey>("safe");
-  const [currentStage, setCurrentStage] = useState<number>(1); // 1 to 7
+  const [currentStage, setCurrentStage] = useState<number>(1);
   const [activeIntent, setActiveIntent] = useState<Intent | null>(null);
   const [health, setHealth] = useState<HealthCheckData | null>(null);
   const [showJudgeScript, setShowJudgeScript] = useState<boolean>(false);
@@ -42,10 +35,8 @@ export const DemoPage: React.FC = () => {
   const [approvalRequest, setApprovalRequest] = useState<ApprovalRequest | null>(null);
   const [authorizedPayment, setAuthorizedPayment] = useState<PaymentExecution | null>(null);
   const [completedPayment, setCompletedPayment] = useState<PaymentExecution | null>(null);
-  const [timelineEvents, setTimelineEvents] = useState<LedgerEvent[]>([]);
   const [securityError, setSecurityError] = useState<string | null>(null);
 
-  // Load initial intent data & health
   useEffect(() => {
     const init = async () => {
       try {
@@ -73,7 +64,6 @@ export const DemoPage: React.FC = () => {
     setApprovalRequest(null);
     setAuthorizedPayment(null);
     setCompletedPayment(null);
-    setTimelineEvents([]);
     setSecurityError(null);
 
     if (key === "safe") {
@@ -94,12 +84,12 @@ export const DemoPage: React.FC = () => {
     } else if (key === "tampering") {
       setProduct("Nike Air Pegasus Running Shoes");
       setMerchant("Nike India");
-      setAmount(3499); // Will be approved at 3499 then tampered to 7999
+      setAmount(3499);
       setAction("purchase");
     }
   };
 
-  // Step 2 -> 3: Evaluate Candidate Proposal
+  // Step 2: Evaluate Proposal
   const handleEvaluateProposal = async () => {
     if (!activeIntent) return;
     setLoading(true);
@@ -117,14 +107,17 @@ export const DemoPage: React.FC = () => {
           isSubscription: action === "subscribe",
         },
       });
-
       setDecisionResult(result);
-      setCurrentStage(3);
 
       if (result.decision === "ASK_APPROVAL" && result.approvalId) {
-        const appr = await apiService.getApprovalById(result.approvalId);
-        setApprovalRequest(appr);
+        const approvalsList = await apiService.getApprovals("pending");
+        const found = approvalsList.find((a) => a.id === result.approvalId);
+        if (found) {
+          setApprovalRequest(found);
+        }
       }
+
+      setCurrentStage(3);
     } catch (err: unknown) {
       setSecurityError(err instanceof Error ? err.message : "Evaluation failed");
     } finally {
@@ -132,14 +125,19 @@ export const DemoPage: React.FC = () => {
     }
   };
 
-  // Step 4: Approve Human Request
+  // Step 4: Human Approval
   const handleApprove = async () => {
     if (!approvalRequest) return;
     setLoading(true);
+    setSecurityError(null);
     try {
-      const approved = await apiService.approveApproval(approvalRequest.id);
-      setApprovalRequest(approved);
-      setCurrentStage(4);
+      const updated = await apiService.approveApproval(approvalRequest.id);
+      setApprovalRequest({
+        ...approvalRequest,
+        status: "APPROVED",
+        approvalToken: updated.approvalToken,
+      });
+      setCurrentStage(5);
     } catch (err: unknown) {
       setSecurityError(err instanceof Error ? err.message : "Approval failed");
     } finally {
@@ -147,23 +145,25 @@ export const DemoPage: React.FC = () => {
     }
   };
 
-  // Step 5: Authorize Payment (or Trigger Tampering Demo)
+  // Step 5: Authorize Payment
   const handleAuthorizePayment = async () => {
     if (!activeIntent) return;
     setLoading(true);
     setSecurityError(null);
 
-    try {
-      const reqAmount = activeScenario === "tampering" ? 7999 : amount; // Attack tampering simulation
+    const isTamperAttack = activeScenario === "tampering";
+    const paymentAmount = isTamperAttack ? 7999 : amount;
+    const paymentProduct = isTamperAttack ? "Nike Vaporfly Elite Pro (Tampered)" : product;
 
+    try {
       const payment = await apiService.authorizePayment({
         intentId: activeIntent.id,
         proposal: {
           id: `prop_demo_${Date.now().toString().slice(-4)}`,
           intentId: activeIntent.id,
-          product,
+          product: paymentProduct,
           merchant,
-          amount: reqAmount,
+          amount: paymentAmount,
           currency: "INR",
           quantity: 1,
           action,
@@ -172,624 +172,316 @@ export const DemoPage: React.FC = () => {
         approvalId: approvalRequest?.id,
         approvalToken: approvalRequest?.approvalToken,
       });
-
       setAuthorizedPayment(payment);
-      setCurrentStage(5);
+      setCurrentStage(6);
     } catch (err: unknown) {
-      setSecurityError(err instanceof Error ? err.message : "Payment authorization denied");
+      setSecurityError(err instanceof Error ? err.message : "Payment authorization rejected");
     } finally {
       setLoading(false);
     }
   };
 
-  // Complete Payment (Razorpay Checkout or Simulated Bridge)
-  const handleCompletePayment = async () => {
+  // Step 6: Complete Settlement
+  const handleCompleteSettlement = async () => {
     if (!authorizedPayment) return;
     setLoading(true);
-    setSecurityError(null);
-
     try {
-      if (isRazorpayTestMode) {
-        const orderData = await apiService.createRazorpayOrder(authorizedPayment.id);
-
-        if (!window.Razorpay) {
-          await new Promise<void>((resolve, reject) => {
-            const script = document.createElement("script");
-            script.src = "https://checkout.razorpay.com/v1/checkout.js";
-            script.onload = () => resolve();
-            script.onerror = () => reject(new Error("Failed to load Razorpay Checkout SDK"));
-            document.body.appendChild(script);
-          });
-        }
-
-        const options = {
-          key: orderData.keyId,
-          amount: orderData.amount,
-          currency: orderData.currency,
-          name: "IntentLedger Autonomous Agent",
-          description: `Authorization Context: ${authorizedPayment.product}`,
-          order_id: orderData.orderId,
-          handler: async (response: {
-            razorpay_payment_id: string;
-            razorpay_order_id: string;
-            razorpay_signature: string;
-          }) => {
-            try {
-              const verified = await apiService.verifyRazorpayPayment({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                internalPaymentId: authorizedPayment.id,
-              });
-              setCompletedPayment(verified);
-              setCurrentStage(6);
-
-              if (activeIntent) {
-                const events = await apiService.getLedgerByIntentId(activeIntent.id);
-                setTimelineEvents(events);
-              }
-            } catch (vErr: unknown) {
-              setSecurityError(vErr instanceof Error ? vErr.message : "Signature verification failed");
-            }
-          },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      } else {
-        // Simulated completion
-        const completed = await apiService.completePayment(authorizedPayment.id);
-        setCompletedPayment(completed);
-        setCurrentStage(6);
-
-        if (activeIntent) {
-          const events = await apiService.getLedgerByIntentId(activeIntent.id);
-          setTimelineEvents(events);
-        }
-      }
+      const completed = await apiService.completePayment(authorizedPayment.id);
+      setCompletedPayment(completed);
+      setCurrentStage(7);
     } catch (err: unknown) {
-      setSecurityError(err instanceof Error ? err.message : "Payment execution failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Safe Demo Reset
-  const handleResetDemo = async () => {
-    setLoading(true);
-    try {
-      await apiService.resetDemo();
-      handleSelectScenario("safe");
-      const refreshedIntents = await apiService.getIntents();
-      if (refreshedIntents.length > 0) setActiveIntent(refreshedIntents[0]);
-    } catch (err) {
-      console.error("Failed to reset demo:", err);
+      setSecurityError(err instanceof Error ? err.message : "Settlement failed");
     } finally {
       setLoading(false);
     }
   };
 
   const steps = [
-    { num: 1, label: "Intent", status: currentStage >= 1 ? "✓ COMPLETE" : "○ WAITING" },
-    { num: 2, label: "Agent", status: currentStage >= 2 ? "✓ COMPLETE" : "○ WAITING" },
-    { num: 3, label: "Decision", status: decisionResult ? `✓ ${decisionResult.decision}` : currentStage === 3 ? "● ACTIVE" : "○ WAITING" },
-    { num: 4, label: "Approval", status: approvalRequest?.status === "APPROVED" ? "✓ APPROVED" : currentStage === 4 ? "● ACTIVE" : "○ WAITING" },
-    { num: 5, label: "Payment", status: completedPayment ? "✓ SETTLED" : authorizedPayment ? "● AUTHORIZED" : currentStage === 5 ? "● ACTIVE" : "○ WAITING" },
-    { num: 6, label: "Ledger", status: completedPayment || decisionResult?.decision === "BLOCK" ? "✓ RECORDED" : "○ WAITING" },
-    { num: 7, label: "Replay", status: completedPayment || decisionResult?.decision === "BLOCK" ? "✓ READY" : "○ WAITING" },
+    { num: 1, label: "Intent" },
+    { num: 2, label: "Proposal" },
+    { num: 3, label: "Policy Check" },
+    { num: 4, label: "Approval" },
+    { num: 5, label: "Payment Gate" },
+    { num: 6, label: "Settlement" },
+    { num: 7, label: "Ledger Audit" },
   ];
 
   return (
-    <div className="space-y-8 animate-fadeIn max-w-6xl mx-auto">
-      {/* 20-Second Pitch & Judge Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 animate-fadeIn max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-surface-border">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary-light text-xs font-extrabold uppercase tracking-wider">
-              <Zap className="w-3.5 h-3.5 text-amber-300" />
-              <span>Judge Demo Mode</span>
-            </span>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-surface-200 text-slate-400 font-mono">
-              Buildathon Edition
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+              Interactive Judge Evaluation
             </span>
           </div>
-
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white">IntentLedger Live Demo</h1>
-          <p className="text-sm text-slate-300 font-medium mt-1 max-w-2xl leading-relaxed">
-            <strong>AI agents can act. IntentLedger makes sure they can only pay within what the user actually authorized.</strong>
-          </p>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Razorpay executes the payment. IntentLedger enforces the boundary.
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Judge Demo Tour
+          </h1>
+          <p className="text-xs md:text-sm text-slate-600 mt-1">
+            Step-by-step interactive demonstration of IntentLedger's intent compilation, deterministic governance, and cryptographic authorization.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start md:self-auto">
-          <button
-            type="button"
-            onClick={() => setShowJudgeScript(!showJudgeScript)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-100 border border-surface-border hover:border-primary/50 text-indigo-300 text-xs font-bold transition-all"
-          >
-            <HelpCircle className="w-3.5 h-3.5 text-indigo-400" />
-            <span>{showJudgeScript ? "Hide Judge Script" : "Judge Walkthrough (30s)"}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleResetDemo}
-            disabled={loading}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surface-100 border border-surface-border hover:border-surface-borderHover text-slate-300 text-xs font-bold transition-all"
-          >
-            <RotateCcw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-            <span>Reset Demo</span>
-          </button>
-        </div>
+        <button
+          onClick={() => setShowJudgeScript(!showJudgeScript)}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-surface-border hover:border-surface-borderHover text-slate-700 text-xs font-semibold self-start md:self-auto shadow-2xs"
+        >
+          <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
+          <span>{showJudgeScript ? "Hide Judge Notes" : "Show 30s Pitch Script"}</span>
+        </button>
       </div>
 
-      {/* Optional Judge Walkthrough Script Collapsible */}
+      {/* 30-Second Judge Pitch Card */}
       {showJudgeScript && (
-        <div className="p-5 rounded-2xl bg-gradient-to-r from-indigo-950/60 via-purple-950/40 to-surface-100 border border-indigo-500/40 space-y-3 animate-fadeIn">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold uppercase text-indigo-300 tracking-wider flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-amber-300" />
-              <span>30-Second Judge Walkthrough Script</span>
-            </span>
-            <span className="text-[10px] text-slate-400">8 Core Security Steps</span>
+        <div className="fintech-card p-5 space-y-2 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-blue-200">
+          <div className="text-xs font-bold uppercase text-blue-800 flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 text-blue-600" />
+            <span>30-Second Elevator Pitch:</span>
           </div>
-
-          <ol className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs text-slate-200">
-            <li className="p-2.5 rounded-xl bg-surface-200/80 border border-surface-border">
-              <strong className="text-indigo-300 block mb-0.5">1. Tell what you want</strong>
-              Natural language user prompt defines spending bounds.
-            </li>
-            <li className="p-2.5 rounded-xl bg-surface-200/80 border border-surface-border">
-              <strong className="text-indigo-300 block mb-0.5">2. AI compiles policy</strong>
-              Gemini extracts structured budget & permissions.
-            </li>
-            <li className="p-2.5 rounded-xl bg-surface-200/80 border border-surface-border">
-              <strong className="text-indigo-300 block mb-0.5">3. Agent proposes action</strong>
-              Autonomous agent selects a candidate product.
-            </li>
-            <li className="p-2.5 rounded-xl bg-surface-200/80 border border-surface-border">
-              <strong className="text-indigo-300 block mb-0.5">4. Engine checks drift</strong>
-              Deterministic checks yield ALLOW, APPROVE, or BLOCK.
-            </li>
-            <li className="p-2.5 rounded-xl bg-surface-200/80 border border-surface-border">
-              <strong className="text-indigo-300 block mb-0.5">5. Human approves</strong>
-              Issues cryptographic token locked to item snapshot.
-            </li>
-            <li className="p-2.5 rounded-xl bg-surface-200/80 border border-surface-border">
-              <strong className="text-indigo-300 block mb-0.5">6. Payment rail invoked</strong>
-              Razorpay order created only after server verifies context.
-            </li>
-            <li className="p-2.5 rounded-xl bg-surface-200/80 border border-surface-border">
-              <strong className="text-indigo-300 block mb-0.5">7. Tampering blocked</strong>
-              Altered payload invalidates token before order creation.
-            </li>
-            <li className="p-2.5 rounded-xl bg-surface-200/80 border border-surface-border">
-              <strong className="text-indigo-300 block mb-0.5">8. Audit & Replay</strong>
-              Every state transition recorded in append-only ledger.
-            </li>
-          </ol>
+          <p className="text-xs text-slate-700 leading-relaxed">
+            "Autonomous AI shopping agents can select and propose actions, but they have zero direct payment authority. IntentLedger translates natural-language user intent into enforceable mathematical policy, detects intent drift, binds cryptographic approval tokens, and enforces pre-payment authorization before funds move."
+          </p>
         </div>
       )}
 
-      {/* Scenario Selector Chips */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* 4 Benchmark Scenario Tabs */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {[
-          {
-            key: "safe",
-            title: "Scenario A: Safe Purchase",
-            desc: "Nike Pegasus @ ₹3,499 under ₹4,000 budget with approval mandate.",
-            badge: "ALLOW / APPROVE",
-            badgeColor: "text-emerald-400 border-emerald-500/30 bg-emerald-950",
-          },
-          {
-            key: "drift",
-            title: "Scenario B: Agent Drift (+₹3,999)",
-            desc: "Agent attempts ₹7,999 against ₹4,000 budget limit.",
-            badge: "🚨 BLOCK",
-            badgeColor: "text-rose-400 border-rose-500/30 bg-rose-950",
-          },
-          {
-            key: "subscription",
-            title: "Scenario C: Subscription Breach",
-            desc: "Agent attempts recurring plan when user authorized one-time only.",
-            badge: "🚨 BLOCK",
-            badgeColor: "text-rose-400 border-rose-500/30 bg-rose-950",
-          },
-          {
-            key: "tampering",
-            title: "Scenario D: 🛡️ Context Tampering",
-            desc: "User approves ₹3,499; rogue agent submits ₹7,999 with same token.",
-            badge: "🛡️ SECURITY ATTACK",
-            badgeColor: "text-amber-300 border-amber-500/30 bg-amber-950",
-          },
-        ].map((sc) => (
+          { key: "safe", title: "Scenario A: Safe Compliant", tag: "ALLOW / ASK" },
+          { key: "drift", title: "Scenario B: Budget Drift", tag: "BLOCK (+₹3,999)" },
+          { key: "subscription", title: "Scenario C: Subscription", tag: "BLOCK (Prohibited)" },
+          { key: "tampering", title: "Scenario D: Hero Tamper", tag: "SECURITY PROOF" },
+        ].map((s) => (
           <button
-            key={sc.key}
-            onClick={() => handleSelectScenario(sc.key as DemoScenarioKey)}
-            className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden group ${
-              activeScenario === sc.key
-                ? "bg-surface-100 border-primary shadow-glow"
-                : "bg-surface-100/60 border-surface-border hover:border-surface-borderHover"
+            key={s.key}
+            onClick={() => handleSelectScenario(s.key as DemoScenarioKey)}
+            className={`p-3 rounded-lg border text-left text-xs transition-all ${
+              activeScenario === s.key
+                ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                : "bg-white text-slate-600 hover:text-slate-900 border-surface-border shadow-2xs"
             }`}
           >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-bold text-white group-hover:text-primary-light transition-colors">
-                {sc.title}
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
-              {sc.desc}
-            </p>
-            <div className="mt-3">
-              <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded border ${sc.badgeColor}`}>
-                {sc.badge}
-              </span>
-            </div>
+            <div className="font-bold text-[11px]">{s.title}</div>
+            <div className="text-[10px] opacity-80 font-mono mt-0.5">{s.tag}</div>
           </button>
         ))}
       </div>
 
-      {/* Horizontal Lifecycle Stepper */}
-      <div className="rounded-2xl bg-surface-100 border border-surface-border p-4 shadow-xl overflow-x-auto">
-        <div className="flex items-center justify-between min-w-max gap-3">
+      {/* 7-Step Progress Stepper */}
+      <div className="fintech-card p-4">
+        <div className="grid grid-cols-7 gap-1 text-center text-xs">
           {steps.map((st) => (
-            <div key={st.num} className="flex items-center gap-2">
-              <div
-                className={`flex flex-col gap-0.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-                  currentStage >= st.num
-                    ? "bg-primary text-white shadow-glow"
-                    : "bg-surface-200 text-slate-500 border border-surface-border"
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <span className="w-4 h-4 rounded-full bg-black/30 flex items-center justify-center text-[10px]">
-                    {st.num}
-                  </span>
-                  <span>{st.label}</span>
-                </div>
-                <span className="text-[9px] opacity-80 font-mono pl-5">
-                  {st.status}
-                </span>
-              </div>
-              {st.num < steps.length && (
-                <ArrowRight className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-              )}
+            <div
+              key={st.num}
+              className={`p-2 rounded-lg transition-all ${
+                st.num === currentStage
+                  ? "bg-blue-600 text-white font-bold shadow-sm"
+                  : st.num < currentStage
+                  ? "bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200"
+                  : "bg-slate-50 text-slate-400 font-normal"
+              }`}
+            >
+              <div className="text-[9px] font-mono opacity-80">STEP {st.num}</div>
+              <div className="text-[11px] truncate mt-0.5">{st.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Main Interactive Stage Arena */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Intent & Candidate Proposal (5 Cols) */}
-        <div className="lg:col-span-5 rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-xl space-y-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-                01. Stored Intent Policy
-              </h2>
-            </div>
-            <span className="text-[10px] font-bold text-slate-400 bg-surface-200 border border-surface-border px-2 py-0.5 rounded">
-              Active Boundary
-            </span>
+      {/* Main Guided Execution Card */}
+      <div className="fintech-card p-6 md:p-8 space-y-6">
+        {/* Stage 1 & 2: Define Intent & Candidate Proposal */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-surface-border">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+              {currentStage <= 2 ? "1. Bound User Intent & Agent Proposal" : "Active Transaction Context"}
+            </h3>
+            <span className="text-[10px] font-mono text-slate-400">Live API Execution</span>
           </div>
 
-          {/* Active Intent Details */}
-          {activeIntent && (
-            <div className="p-4 rounded-xl bg-surface-200 border border-surface-border space-y-2.5">
-              <div className="text-[10px] font-bold uppercase text-slate-400">Natural Language Intent:</div>
-              <p className="text-xs text-slate-200 font-medium italic">
-                "{activeIntent.rawText}"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div className="p-4 rounded-lg bg-surface-50 border border-surface-border space-y-2">
+              <span className="text-[10px] font-bold text-slate-500 uppercase block">Bound User Intent:</span>
+              <p className="font-semibold text-slate-900 italic">
+                "{activeIntent?.rawText || 'Buy running shoes under ₹4,000 and ask me before purchasing.'}"
               </p>
-
-              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-surface-border text-xs">
-                <div>
-                  <span className="text-[10px] text-slate-400 block uppercase font-bold">Authorized Cap</span>
-                  <span className="text-sm font-extrabold text-emerald-400">
-                    ₹{activeIntent.constraints.maxAmount?.toLocaleString()}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 block uppercase font-bold">Human Approval</span>
-                  <span className="text-xs font-bold text-amber-400">
-                    {activeIntent.constraints.requiresApproval ? "Mandatory" : "Auto-Authorize"}
-                  </span>
-                </div>
+              <div className="flex items-center gap-2 pt-1">
+                <span className="px-2 py-0.5 rounded bg-white border border-surface-border font-bold text-slate-700 shadow-2xs">
+                  Limit: ₹{activeIntent?.constraints.maxAmount?.toLocaleString()}
+                </span>
+                <span className="px-2 py-0.5 rounded bg-white border border-surface-border font-bold text-slate-700 shadow-2xs">
+                  {activeIntent?.constraints.requiresApproval ? "Approval Mandated" : "Auto-Allow"}
+                </span>
               </div>
+            </div>
+
+            <div className="p-4 rounded-lg bg-surface-50 border border-surface-border space-y-2">
+              <span className="text-[10px] font-bold text-slate-500 uppercase block">Autonomous Agent Proposal:</span>
+              <div className="font-bold text-slate-900 text-sm">
+                {product}
+              </div>
+              <div className="flex items-center justify-between text-slate-600">
+                <span>Merchant: <strong className="text-slate-900">{merchant}</strong></span>
+                <span className="text-base font-extrabold text-slate-900 tabular-nums">
+                  ₹{amount.toLocaleString()} INR
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {currentStage <= 2 && (
+            <div className="pt-2">
+              <button
+                onClick={handleEvaluateProposal}
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+              >
+                <Zap className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+                <span>Evaluate Agent Proposal against Policy Gate</span>
+              </button>
             </div>
           )}
+        </div>
 
-          {/* Candidate Agent Proposal Box */}
-          <div className="space-y-3 pt-2">
+        {/* Stage 3: Decision Engine Verdict */}
+        {decisionResult && currentStage >= 3 && (
+          <div className="space-y-4 pt-4 border-t border-surface-border">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Bot className="w-4 h-4 text-purple-400" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-purple-300">
-                  02. AI Agent Candidate Action
-                </h3>
-              </div>
-              <span className="text-[10px] font-mono text-slate-400">Candidate Action</span>
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                2. Decision Engine Policy Check
+              </h3>
+              <DecisionBadge decision={decisionResult.decision} size="md" />
             </div>
 
-            <div className="p-4 rounded-xl bg-surface-200 border border-purple-500/30 space-y-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Proposed Product</span>
-                  <div className="text-xs font-bold text-white mt-0.5">{product}</div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">
-                    Merchant: <strong className="text-slate-200">{merchant}</strong>
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                <span className="text-[10px] font-bold text-slate-500 uppercase block">Verdict</span>
+                <span className="font-extrabold text-slate-900 block mt-0.5">{decisionResult.decision}</span>
+              </div>
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                <span className="text-[10px] font-bold text-slate-500 uppercase block">Risk Score</span>
+                <span className="font-extrabold text-slate-900 block mt-0.5">{decisionResult.riskScore}/100</span>
+              </div>
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                <span className="text-[10px] font-bold text-slate-500 uppercase block">Drift Status</span>
+                <span className={`font-extrabold block mt-0.5 ${decisionResult.driftReport?.hasDrift ? "text-rose-600" : "text-emerald-700"}`}>
+                  {decisionResult.driftReport?.hasDrift ? decisionResult.driftReport.severity : "Zero Drift"}
+                </span>
+              </div>
+            </div>
 
-                <div className="text-right">
-                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Requested Price</span>
-                  <span className="text-base font-extrabold text-white">
-                    ₹{amount.toLocaleString()}
+            {/* Stage 4: Approval Action */}
+            {decisionResult.decision === "ASK_APPROVAL" && currentStage === 3 && (
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-300 space-y-3">
+                <div className="text-xs text-amber-900 font-semibold">
+                  Human approval is mandated before payment can be authorized.
+                </div>
+                <button
+                  onClick={handleApprove}
+                  disabled={loading}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm"
+                >
+                  <CheckSquare className="w-3.5 h-3.5" />
+                  <span>Grant Human Approval (Generate Cryptographic Token)</span>
+                </button>
+              </div>
+            )}
+
+            {/* Stage 5: Payment Gate Authorization */}
+            {currentStage === 5 && (
+              <div className="p-4 rounded-xl bg-surface-50 border border-surface-border space-y-3">
+                <div className="text-xs text-slate-800 font-semibold flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-emerald-600" />
+                  <span>
+                    {activeScenario === "tampering"
+                      ? "Attacker modifying proposed amount to ₹7,999 before payment..."
+                      : "Cryptographic approval token active. Ready for payment authorization."}
                   </span>
                 </div>
-              </div>
-
-              {action === "subscribe" && (
-                <div className="p-2 rounded bg-purple-950/60 border border-purple-500/30 text-[11px] text-purple-300 font-semibold">
-                  ⚠️ Action Type: Recurring Monthly Subscription
-                </div>
-              )}
-            </div>
-
-            {/* Evaluate Trigger */}
-            <button
-              type="button"
-              onClick={handleEvaluateProposal}
-              disabled={loading}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-primary via-indigo-600 to-accent-violet hover:from-primary-hover hover:to-indigo-500 text-white font-extrabold text-xs tracking-wider uppercase shadow-glow transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              <Zap className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-              <span>Evaluate Intent Policy</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Right Column: Policy Verdict, Approval & Payment Flow (7 Cols) */}
-        <div className="lg:col-span-7 rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-xl flex flex-col justify-between space-y-6">
-          <div className="space-y-5">
-            {/* Top Stage Title */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-                  03. IntentLedger Verdict & Governance
-                </h2>
-              </div>
-              <span className="text-[10px] font-bold text-slate-400">Server Evaluated</span>
-            </div>
-
-            {/* Security Error / Block Banner */}
-            {securityError && (
-              <div className="p-4 rounded-2xl bg-rose-950/90 border border-rose-500/60 text-rose-200 text-xs space-y-2 animate-fadeIn shadow-glow-rose">
-                <div className="flex items-center gap-2 font-extrabold text-rose-300 text-sm uppercase">
-                  <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0" />
-                  <span>Security Violation Detected</span>
-                </div>
-                <p className="leading-relaxed font-medium">{securityError}</p>
-                {activeScenario === "tampering" && (
-                  <div className="p-3 rounded-xl bg-rose-900/80 border border-rose-700/60 text-[11px] text-rose-200 font-mono">
-                    🛡️ APPROVAL_CONTEXT_MISMATCH: User approved ₹3,499. Payment requested ₹7,999. Transaction blocked permanently. Razorpay order was NOT created.
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Stage A: Waiting for Evaluation */}
-            {!decisionResult && !securityError && (
-              <div className="py-16 text-center space-y-3 rounded-2xl bg-surface-200 border border-surface-border">
-                <div className="w-12 h-12 rounded-2xl bg-surface-100 border border-surface-border mx-auto flex items-center justify-center text-slate-500">
-                  <Bot className="w-6 h-6" />
-                </div>
-                <div className="text-xs font-semibold text-slate-400 max-w-xs mx-auto">
-                  Click <strong className="text-slate-200">"Evaluate Intent Policy"</strong> to test how IntentLedger checks candidate action against the user's intent.
-                </div>
-              </div>
-            )}
-
-            {/* Stage B: Decision Result Display */}
-            {decisionResult && (
-              <div className="space-y-4 animate-fadeIn">
-                {/* Major Decision Card */}
-                <div
-                  className={`p-5 rounded-2xl border text-center transition-all ${
-                    decisionResult.decision === "ALLOW"
-                      ? "bg-emerald-950/50 border-emerald-500/50 shadow-glow-emerald"
-                      : decisionResult.decision === "ASK_APPROVAL"
-                      ? "bg-amber-950/50 border-amber-500/50 shadow-glow-amber"
-                      : "bg-rose-950/50 border-rose-500/50 shadow-glow-rose"
+                <button
+                  onClick={handleAuthorizePayment}
+                  disabled={loading}
+                  className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg text-white text-xs font-bold transition-all shadow-sm ${
+                    activeScenario === "tampering"
+                      ? "bg-rose-600 hover:bg-rose-700"
+                      : "bg-blue-600 hover:bg-blue-700"
                   }`}
                 >
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
-                    Deterministic Safety Verdict
-                  </div>
-                  <div className="flex justify-center my-2">
-                    <DecisionBadge decision={decisionResult.decision} size="lg" />
-                  </div>
-                  <p className="text-xs text-slate-300 font-medium">
-                    {decisionResult.explanation}
-                  </p>
+                  <CreditCard className="w-3.5 h-3.5" />
+                  <span>
+                    {activeScenario === "tampering"
+                      ? "Attempt Tampered Payment Authorization (₹7,999)"
+                      : "Authorize Payment at Payment Gate"}
+                  </span>
+                </button>
+              </div>
+            )}
+
+            {/* Security Error / Context Mismatch Notice */}
+            {securityError && (
+              <div className="p-4 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 text-xs space-y-1">
+                <div className="font-bold flex items-center gap-2 text-rose-800">
+                  <ShieldAlert className="w-4 h-4 text-rose-600" />
+                  <span>PAYMENT PERMANENTLY BLOCKED</span>
                 </div>
+                <div className="font-mono text-[11px] text-rose-700 font-semibold">{securityError}</div>
+                <p className="text-[11px] text-slate-600 pt-1">
+                  The Payment Gate cryptographically verified that the submission did not match the approved proposal snapshot. Zero money moved.
+                </p>
+              </div>
+            )}
 
-                {/* Intent Drift Diagnostic Card */}
-                {decisionResult.driftReport.hasDrift && (
-                  <div className="p-4 rounded-xl bg-rose-950/50 border border-rose-500/50 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-rose-300 flex items-center gap-1.5 uppercase">
-                        <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-                        <span>Intent Drift Detected</span>
-                      </span>
-                      <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-rose-900 text-rose-200">
-                        {decisionResult.driftReport.severity}
-                      </span>
-                    </div>
+            {/* Stage 6: Settlement Action */}
+            {authorizedPayment && currentStage === 6 && (
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 space-y-3">
+                <div className="text-xs text-emerald-900 font-bold">
+                  Payment Pre-Authorized! Auth ID: {authorizedPayment.id}
+                </div>
+                <button
+                  onClick={handleCompleteSettlement}
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm"
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  <span>Complete Settlement ({isRazorpayTestMode ? "Razorpay Test Rail" : "Simulated Sandbox"})</span>
+                </button>
+              </div>
+            )}
 
-                    <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                      <div className="p-2 rounded bg-surface-200 border border-surface-border">
-                        <span className="text-[10px] text-slate-400 block uppercase">Authorized</span>
-                        <strong className="text-emerald-400">₹{activeIntent?.constraints.maxAmount?.toLocaleString()}</strong>
-                      </div>
-                      <div className="p-2 rounded bg-surface-200 border border-surface-border">
-                        <span className="text-[10px] text-slate-400 block uppercase">Requested</span>
-                        <strong className="text-rose-400">₹{amount.toLocaleString()}</strong>
-                      </div>
-                      <div className="p-2 rounded bg-surface-200 border border-surface-border">
-                        <span className="text-[10px] text-slate-400 block uppercase">Deviation</span>
-                        <strong className="text-rose-300">
-                          {decisionResult.driftReport.driftItems[0]?.deviation || `+₹${(amount - 4000).toLocaleString()}`}
-                        </strong>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Stage C: Human Approval Required */}
-                {decisionResult.decision === "ASK_APPROVAL" && approvalRequest && (
-                  <div className="p-4 rounded-xl bg-amber-950/30 border border-amber-500/40 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-amber-300 uppercase flex items-center gap-1.5">
-                        <CheckSquare className="w-3.5 h-3.5" />
-                        <span>04. Human Authorization Required</span>
-                      </span>
-                      <span className="text-[10px] font-mono text-amber-300">
-                        {approvalRequest.status}
-                      </span>
-                    </div>
-
-                    {approvalRequest.status === "PENDING" ? (
-                      <button
-                        type="button"
-                        onClick={handleApprove}
-                        disabled={loading}
-                        className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs shadow-glow-emerald transition-all active:scale-95 flex items-center justify-center gap-1.5"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Approve Purchase of ₹{amount.toLocaleString()}</span>
-                      </button>
-                    ) : (
-                      <div className="p-2.5 rounded bg-emerald-950/60 border border-emerald-500/40 text-xs text-emerald-300 font-semibold flex items-center justify-between">
-                        <span className="flex items-center gap-1.5">
-                          <Key className="w-3.5 h-3.5" />
-                          <span>Cryptographic Approval Token Issued (10m TTL)</span>
-                        </span>
-                        <span className="font-mono text-[10px] truncate max-w-[140px]">
-                          {approvalRequest.approvalToken}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Stage D: Payment Execution Gate */}
-                {(decisionResult.decision === "ALLOW" || approvalRequest?.status === "APPROVED") && !completedPayment && (
-                  <div className="p-4 rounded-xl bg-surface-200 border border-emerald-500/40 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-white uppercase flex items-center gap-1.5">
-                        <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>05. Payment Rail Execution</span>
-                      </span>
-                      <span className="text-[10px] font-bold text-emerald-400">
-                        {isRazorpayTestMode ? "Razorpay Test Mode" : "Simulated Bridge"}
-                      </span>
-                    </div>
-
-                    {!authorizedPayment ? (
-                      <button
-                        type="button"
-                        onClick={handleAuthorizePayment}
-                        disabled={loading}
-                        className="w-full py-2.5 px-4 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-extrabold shadow-glow transition-all flex items-center justify-center gap-2"
-                      >
-                        <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-                        <span>
-                          {activeScenario === "tampering"
-                            ? "Test Malicious Payment (Attempt ₹7,999)"
-                            : `Authorize Payment of ₹${amount.toLocaleString()}`}
-                        </span>
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleCompletePayment}
-                        disabled={loading}
-                        className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white text-xs font-extrabold shadow-glow-emerald transition-all flex items-center justify-center gap-2"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>
-                          {isRazorpayTestMode ? "Open Razorpay Test Checkout" : "Complete Simulated Settlement"}
-                        </span>
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                {/* Stage E: Settled & Ledger Stream */}
-                {completedPayment && (
-                  <div className="p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/50 space-y-4 animate-fadeIn">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-emerald-300 uppercase flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        <span>06. Payment Cryptographically Verified</span>
-                      </span>
-                      <span className="text-xs font-mono text-emerald-300">SETTLED</span>
-                    </div>
-
-                    <div className="text-xs text-slate-300 space-y-1">
-                      <div>Transaction ID: <span className="font-mono text-indigo-300">{completedPayment.gatewayTransactionId}</span></div>
-                      {completedPayment.razorpayOrderId && (
-                        <div>Razorpay Order: <span className="font-mono text-purple-300">{completedPayment.razorpayOrderId}</span></div>
-                      )}
-                      <div>Amount: <strong className="text-emerald-400">₹{completedPayment.amount.toLocaleString()}</strong></div>
-                    </div>
-
-                    {/* Live Ledger Timeline list */}
-                    {timelineEvents.length > 0 && (
-                      <div className="p-3 rounded-xl bg-surface-200 border border-surface-border text-xs space-y-1">
-                        <span className="text-[10px] font-bold uppercase text-slate-400 block">Append-Only Audit Trail:</span>
-                        <div className="space-y-0.5 text-[11px] text-slate-300 font-mono">
-                          {timelineEvents.slice(0, 5).map((e) => (
-                            <div key={e.id} className="truncate text-indigo-300">✓ {e.eventType}</div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="pt-2 flex items-center gap-3">
-                      <Link
-                        to="/replay"
-                        className="flex-1 py-2.5 px-4 rounded-xl bg-primary hover:bg-primary-hover text-center text-xs font-extrabold text-white shadow-glow flex items-center justify-center gap-1.5 transition-all"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>07. Replay Full Lifecycle</span>
-                      </Link>
-
-                      <Link
-                        to="/ledger"
-                        className="flex-1 py-2.5 px-4 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-center text-xs font-bold text-slate-200 flex items-center justify-center gap-1.5 transition-all"
-                      >
-                        <History className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Decision Ledger</span>
-                      </Link>
-                    </div>
-                  </div>
-                )}
+            {/* Stage 7: Ledger Proof */}
+            {completedPayment && currentStage === 7 && (
+              <div className="p-5 rounded-xl bg-surface-50 border border-emerald-300 text-xs space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-emerald-800 uppercase">
+                    ✓ Full Transaction Lifecycle Completed
+                  </span>
+                  <span className="font-mono text-slate-500 font-semibold">Tx: {completedPayment.gatewayTransactionId}</span>
+                </div>
+                <p className="text-slate-600">
+                  All decisions, cryptographic tokens, and settlements have been recorded into the append-only ledger.
+                </p>
+                <div className="flex items-center gap-3 pt-2">
+                  <Link
+                    to="/ledger"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white hover:bg-slate-50 border border-surface-border text-slate-700 text-xs font-bold shadow-2xs"
+                  >
+                    <span>Inspect Ledger</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                  <Link
+                    to="/replay"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm"
+                  >
+                    <span>Forensic Replay</span>
+                    <RotateCcw className="w-3 h-3" />
+                  </Link>
+                </div>
               </div>
             )}
           </div>
-
-          <div className="text-[11px] text-slate-400 p-3 rounded-xl bg-surface-200/80 border border-surface-border flex items-center justify-between">
-            <span className="font-semibold text-slate-300">
-              The AI can propose. The user defines the intent. IntentLedger enforces the boundary.
-            </span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   Search,
   RefreshCw,
-  Clock,
   User,
   Bot,
   Shield,
@@ -11,6 +10,7 @@ import {
   RotateCcw,
   X,
   FileText,
+  Lock,
 } from "lucide-react";
 import { DecisionBadge } from "../components/StatusBadge";
 import { apiService } from "../services/api";
@@ -39,9 +39,7 @@ export const LedgerPage: React.FC = () => {
     fetchLedger();
   }, []);
 
-  // Filtering Logic
   const filteredEvents = events.filter((evt) => {
-    // 1. Tab filter
     if (activeFilter === "INTENTS" && !evt.eventType.startsWith("INTENT_")) return false;
     if (activeFilter === "DECISIONS" && !evt.eventType.includes("POLICY_") && evt.eventType !== "DECISION_MADE") return false;
     if (activeFilter === "DRIFT" && evt.eventType !== "INTENT_DRIFT_DETECTED") return false;
@@ -49,7 +47,6 @@ export const LedgerPage: React.FC = () => {
     if (activeFilter === "PAYMENTS" && !evt.eventType.startsWith("PAYMENT_")) return false;
     if (activeFilter === "BLOCKED" && evt.decision !== "BLOCK" && evt.eventType !== "PAYMENT_BLOCKED") return false;
 
-    // 2. Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchIntent = evt.intentId.toLowerCase().includes(q);
@@ -66,31 +63,31 @@ export const LedgerPage: React.FC = () => {
     switch (actor) {
       case "USER":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 text-[10px] font-bold">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-bold">
             <User className="w-2.5 h-2.5" /> USER
           </span>
         );
       case "AI_AGENT":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-950/80 border border-purple-500/30 text-purple-300 text-[10px] font-bold">
-            <Bot className="w-2.5 h-2.5" /> AI AGENT
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-bold">
+            <Bot className="w-2.5 h-2.5" /> AGENT
           </span>
         );
       case "INTENT_ENGINE":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-cyan-50 border border-cyan-200 text-cyan-700 text-[10px] font-bold">
             <Shield className="w-2.5 h-2.5" /> ENGINE
           </span>
         );
       case "PAYMENT_GATEWAY":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold">
             <CreditCard className="w-2.5 h-2.5" /> GATEWAY
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-bold">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-bold">
             SYSTEM
           </span>
         );
@@ -100,214 +97,207 @@ export const LedgerPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-surface-border">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary-light text-xs font-semibold uppercase tracking-wider mb-2">
-            Append-Only Audit Trail
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+              Forensic Audit Trail
+            </span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white">Decision Ledger</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Immutable timeline of intent registrations, candidate proposals, policy checks, drift detections, human approvals, and settlements.
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Audit Ledger
+          </h1>
+          <p className="text-xs md:text-sm text-slate-600 mt-1">
+            Immutable chronological record of IntentLedger decisions, approvals, and settlements.
           </p>
         </div>
 
-        <button
-          onClick={fetchLedger}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-100 border border-surface-border hover:border-surface-borderHover text-slate-200 text-xs font-bold transition-all self-start md:self-auto"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          <span>Refresh Ledger</span>
-        </button>
-      </div>
-
-      {/* Filters & Search Bar */}
-      <div className="rounded-2xl bg-surface-100 border border-surface-border p-4 shadow-lg space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          {/* Filter Pills */}
-          <div className="flex flex-wrap items-center gap-1.5 text-xs font-bold">
-            {[
-              { id: "ALL", label: "All Events" },
-              { id: "INTENTS", label: "Intents" },
-              { id: "DECISIONS", label: "Decisions" },
-              { id: "DRIFT", label: "🚨 Drift Alerts" },
-              { id: "APPROVALS", label: "Approvals" },
-              { id: "PAYMENTS", label: "Payments" },
-              { id: "BLOCKED", label: "Blocked" },
-            ].map((f) => (
-              <button
-                key={f.id}
-                onClick={() => setActiveFilter(f.id)}
-                className={`px-3 py-1.5 rounded-lg transition-all ${
-                  activeFilter === f.id
-                    ? "bg-primary text-white shadow-glow"
-                    : "bg-surface-200 text-slate-400 hover:text-slate-200 hover:bg-surface-50"
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Search Box */}
-          <div className="relative w-full md:w-72">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search intent ID, actor, keyword..."
-              className="w-full text-xs rounded-xl bg-surface-200 border border-surface-border pl-9 pr-3 py-2 text-slate-200 focus:outline-none focus:border-primary"
-            />
-          </div>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/replay"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white hover:bg-slate-50 border border-surface-border text-slate-700 text-xs font-semibold transition-all shadow-2xs"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-blue-600" />
+            <span>Forensic Replay</span>
+          </Link>
+          <button
+            onClick={fetchLedger}
+            className="p-2 rounded-lg bg-white hover:bg-slate-50 border border-surface-border text-slate-600 hover:text-slate-900 transition-all shadow-2xs"
+            title="Refresh Ledger"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          </button>
         </div>
       </div>
 
-      {/* Timeline Stream */}
-      {loading ? (
-        <div className="py-20 text-center text-slate-500 text-xs animate-pulse">
-          Loading immutable ledger...
+      {/* Immutability Invariant Card */}
+      <div className="fintech-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-purple-50 border border-purple-200 text-purple-700 shrink-0">
+            <Lock className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="font-bold text-slate-900 block">Append-Only Immutability Contract</span>
+            <span className="text-slate-600 text-[11px]">
+              Ledger records cannot be edited or deleted. External mutation requests (POST/PUT/DELETE) return HTTP 405 Method Not Allowed.
+            </span>
+          </div>
         </div>
-      ) : filteredEvents.length === 0 ? (
-        <div className="rounded-2xl bg-surface-100 border border-surface-border p-12 text-center text-slate-400 text-xs">
-          No ledger events match your current filter query.
+        <span className="text-[10px] font-mono text-purple-700 bg-purple-50 px-2.5 py-1 rounded border border-purple-200 shrink-0 font-bold">
+          PROTECTED
+        </span>
+      </div>
+
+      {/* Filters & Search Toolbar */}
+      <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
+        {/* Filter Pills */}
+        <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
+          {[
+            { id: "ALL", label: "All Events" },
+            { id: "INTENTS", label: "Intents" },
+            { id: "DECISIONS", label: "Decisions" },
+            { id: "DRIFT", label: "Drift" },
+            { id: "APPROVALS", label: "Approvals" },
+            { id: "PAYMENTS", label: "Payments" },
+            { id: "BLOCKED", label: "Blocked" },
+          ].map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setActiveFilter(f.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeFilter === f.id
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "bg-white text-slate-600 hover:text-slate-900 border border-surface-border"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
-      ) : (
-        <div className="rounded-2xl bg-surface-100 border border-surface-border shadow-xl divide-y divide-surface-border overflow-hidden">
-          {filteredEvents.map((evt) => {
-            const isDrift = evt.eventType === "INTENT_DRIFT_DETECTED";
-            const isBlocked = evt.decision === "BLOCK" || evt.eventType === "PAYMENT_BLOCKED";
-            const isCompleted = evt.eventType === "PAYMENT_COMPLETED";
 
-            return (
-              <div
-                key={evt.id}
-                onClick={() => setSelectedEvent(evt)}
-                className={`p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-surface-200/60 transition-all ${
-                  isDrift ? "bg-rose-950/20" : isBlocked ? "bg-rose-950/10" : ""
-                }`}
-              >
-                {/* Left: Time, Actor, Event Name */}
-                <div className="flex items-start md:items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-surface-200 border border-surface-border flex items-center justify-center text-slate-400 shrink-0 mt-0.5 md:mt-0">
-                    <Clock className="w-4 h-4" />
-                  </div>
+        {/* Search Input */}
+        <div className="relative w-full md:w-72">
+          <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search event type, ID, actor..."
+            className="w-full pl-9 pr-3 py-2 rounded-lg bg-white border border-surface-border text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 font-sans shadow-2xs"
+          />
+        </div>
+      </div>
 
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs font-bold font-mono text-indigo-300">
-                        {evt.eventType.replace(/_/g, " ")}
-                      </span>
-                      {getActorBadge(evt.actor)}
-                      {evt.decision && <DecisionBadge decision={evt.decision} size="sm" />}
-                      {isCompleted && (
-                        <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
-                          SETTLED
-                        </span>
-                      )}
-                    </div>
-
-                    <p className="text-xs text-slate-200 font-medium line-clamp-2 md:line-clamp-1">
-                      {evt.summary}
-                    </p>
-
-                    <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                      <span>Intent: <strong className="font-mono text-slate-300">{evt.intentId}</strong></span>
-                      {evt.riskScore !== undefined && (
-                        <span>• Risk: <strong className={evt.riskScore > 50 ? "text-rose-400" : "text-emerald-400"}>{evt.riskScore}/100</strong></span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right: Timestamp & Action */}
-                <div className="flex items-center justify-between md:justify-end gap-3 shrink-0">
-                  <span className="text-xs font-mono text-slate-400">
-                    {new Date(evt.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-                  </span>
-
-                  <button
-                    type="button"
-                    className="text-xs text-primary-light hover:text-white font-semibold flex items-center gap-1"
+      {/* Events Table */}
+      <div className="fintech-card overflow-hidden">
+        {loading ? (
+          <div className="py-24 text-center text-slate-400 text-xs animate-pulse">
+            Loading immutable ledger records...
+          </div>
+        ) : filteredEvents.length === 0 ? (
+          <div className="py-24 text-center text-slate-400 text-xs">
+            No ledger events match the selected criteria.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-surface-border text-slate-500 uppercase text-[10px] tracking-wider bg-slate-50">
+                  <th className="py-3 px-4">Timestamp</th>
+                  <th className="py-3 px-4">Event Type</th>
+                  <th className="py-3 px-4">Actor</th>
+                  <th className="py-3 px-4">Intent ID</th>
+                  <th className="py-3 px-4">Summary</th>
+                  <th className="py-3 px-4 text-right">Verdict</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-surface-border">
+                {filteredEvents.map((evt) => (
+                  <tr
+                    key={evt.id}
+                    onClick={() => setSelectedEvent(evt)}
+                    className="hover:bg-slate-50 cursor-pointer transition-colors"
                   >
-                    <span>Inspect</span>
-                    <FileText className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+                    <td className="py-3 px-4 font-mono text-[11px] text-slate-500 tabular-nums whitespace-nowrap">
+                      {new Date(evt.timestamp).toLocaleString()}
+                    </td>
+                    <td className="py-3 px-4 font-bold text-slate-800 whitespace-nowrap uppercase text-[11px]">
+                      {evt.eventType.replace(/_/g, " ")}
+                    </td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      {getActorBadge(evt.actor)}
+                    </td>
+                    <td className="py-3 px-4 font-mono text-[11px] text-slate-600 font-semibold">
+                      {evt.intentId}
+                    </td>
+                    <td className="py-3 px-4 text-slate-600 max-w-md truncate">
+                      {evt.summary}
+                    </td>
+                    <td className="py-3 px-4 text-right whitespace-nowrap">
+                      {evt.decision ? (
+                        <DecisionBadge decision={evt.decision} size="sm" />
+                      ) : (
+                        <span className="text-[10px] text-slate-400 font-mono">-</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
-      {/* Event Details Slide-over / Modal */}
+      {/* Event Detail Modal / Slide-over */}
       {selectedEvent && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-end animate-fadeIn">
-          <div className="w-full max-w-xl bg-surface-100 border-l border-surface-border h-full overflow-y-auto p-6 space-y-6 shadow-2xl flex flex-col justify-between">
-            <div className="space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-surface-border">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary-light" />
-                  <h3 className="text-base font-bold text-white">Ledger Event Inspector</h3>
-                </div>
-                <button
-                  onClick={() => setSelectedEvent(null)}
-                  className="p-1 rounded-lg hover:bg-surface-200 text-slate-400 hover:text-white"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
+          <div className="fintech-card w-full max-w-2xl max-h-[85vh] flex flex-col justify-between overflow-hidden shadow-2xl">
+            <div className="p-5 border-b border-surface-border flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-blue-600" />
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Audit Event Record
+                </h3>
               </div>
-
-              {/* Event Meta Card */}
-              <div className="p-4 rounded-xl bg-surface-200 border border-surface-border space-y-2">
-                <div className="text-xs font-bold uppercase text-slate-400">Event Signature</div>
-                <div className="text-sm font-extrabold text-white">{selectedEvent.eventType}</div>
-                <div className="grid grid-cols-2 gap-2 text-xs text-slate-300 pt-2 border-t border-surface-border">
-                  <div>Actor: <strong className="text-white">{selectedEvent.actor}</strong></div>
-                  <div>Event ID: <span className="font-mono text-indigo-300">{selectedEvent.id}</span></div>
-                  <div>Timestamp: <span className="text-slate-300">{new Date(selectedEvent.timestamp).toLocaleString()}</span></div>
-                  <div>Intent ID: <span className="font-mono text-indigo-300">{selectedEvent.intentId}</span></div>
-                </div>
-              </div>
-
-              {/* Summary & Details */}
-              <div className="space-y-2">
-                <span className="text-xs font-bold uppercase text-slate-400 block">Summary Explanation</span>
-                <p className="text-xs text-slate-200 leading-relaxed p-3.5 rounded-xl bg-surface-200 border border-surface-border font-medium">
-                  {selectedEvent.summary}
-                </p>
-                {selectedEvent.details && (
-                  <p className="text-xs text-slate-400 italic px-1">
-                    "{selectedEvent.details}"
-                  </p>
-                )}
-              </div>
-
-              {/* Raw JSON Payload */}
-              {selectedEvent.metadata && (
-                <div className="space-y-1.5">
-                  <span className="text-xs font-bold uppercase text-slate-400 block">Forensic Metadata Payload</span>
-                  <pre className="p-3.5 rounded-xl bg-surface-300 border border-surface-border text-[11px] text-indigo-300 font-mono overflow-x-auto max-h-60">
-                    {JSON.stringify(selectedEvent.metadata, null, 2)}
-                  </pre>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Bottom CTA */}
-            <div className="pt-4 border-t border-surface-border flex items-center justify-between">
-              <Link
-                to="/replay"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-primary-light hover:text-white"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Replay this Intent Lifecycle</span>
-              </Link>
-
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="px-4 py-2 rounded-lg bg-surface-200 hover:bg-surface-50 text-slate-200 text-xs font-bold"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100"
               >
-                Close Inspector
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 overflow-y-auto text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Event ID</span>
+                  <span className="font-mono text-slate-800 font-semibold">{selectedEvent.id}</span>
+                </div>
+                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Timestamp</span>
+                  <span className="font-mono text-slate-800">{new Date(selectedEvent.timestamp).toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                <span className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Event Summary</span>
+                <p className="text-slate-800 font-medium">{selectedEvent.summary}</p>
+              </div>
+
+              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border space-y-2">
+                <span className="text-[10px] font-bold text-slate-500 uppercase block">Metadata Payload</span>
+                <pre className="p-3 rounded bg-slate-900 border border-slate-800 font-mono text-[11px] text-cyan-300 overflow-x-auto">
+                  {JSON.stringify(selectedEvent.metadata || {}, null, 2)}
+                </pre>
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-surface-border bg-slate-50 flex justify-end">
+              <button
+                onClick={() => setSelectedEvent(null)}
+                className="px-4 py-2 rounded-lg bg-white hover:bg-slate-50 border border-surface-border text-slate-700 text-xs font-semibold shadow-2xs"
+              >
+                Close
               </button>
             </div>
           </div>

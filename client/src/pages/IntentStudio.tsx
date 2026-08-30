@@ -1,17 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
   Sparkles,
-  ShieldCheck,
-  CheckCircle2,
-  AlertCircle,
-  Plus,
   RefreshCw,
-  Tag,
   Layers,
-  Info,
-  Sliders,
-  Cpu,
-  Lock,
+  Plus,
 } from "lucide-react";
 import { StatusPill } from "../components/StatusBadge";
 import { apiService, CompiledIntentResponse } from "../services/api";
@@ -38,20 +30,20 @@ export const IntentStudio: React.FC = () => {
   // Preset sample prompts
   const samplePrompts = [
     {
-      title: "Safe Purchase (Approval Required)",
-      text: "Buy me running shoes under ₹4,000 and ask me before purchasing.",
+      title: "Work Laptop",
+      text: "Buy a work laptop under ₹40,000 from an approved merchant and ask me before purchasing.",
     },
     {
-      title: "Autonomous Office Supplies",
-      text: "Buy office stationery under ₹1,000 automatically without asking.",
+      title: "Business Travel",
+      text: "Book round-trip flight tickets under ₹12,000 automatically without asking.",
     },
     {
-      title: "Subscription Guard",
+      title: "Software Subscription Guard",
       text: "Buy a one-time streaming pass under ₹500. Do not subscribe or authorize recurring payments.",
     },
     {
-      title: "Electronics with Prohibition",
-      text: "Find me a laptop below ₹55,000. I can buy it automatically, but don't purchase extended warranty.",
+      title: "Office Equipment",
+      text: "Order stationery and office supplies under ₹3,500 from verified suppliers only.",
     },
   ];
 
@@ -106,282 +98,231 @@ export const IntentStudio: React.FC = () => {
         },
         permissions: compiled.permissions,
       });
-      setSaveSuccess(`Intent ${created.id} registered and activated successfully!`);
-      await fetchIntents();
+      setSaveSuccess(`Intent policy created successfully (ID: ${created.id})`);
+      fetchIntents();
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : "Failed to register intent");
+      setErrorMsg(err instanceof Error ? err.message : "Failed to persist intent policy");
     } finally {
       setSaving(false);
     }
   };
 
-  const isGeminiActive = compiled?.compiler === "gemini";
+  const handleClear = () => {
+    setRawText("");
+    setCompiled(null);
+    setErrorMsg(null);
+    setSaveSuccess(null);
+  };
 
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header */}
-      <div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary-light text-xs font-semibold uppercase tracking-wider mb-2">
-          Natural Language to Deterministic Policy
+      <div className="pb-2 border-b border-surface-border">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+            Policy Compiler
+          </span>
         </div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-white">Intent Studio</h1>
-        <p className="text-sm text-slate-400 mt-1">
-          Express your purchase mandate in plain English. IntentLedger compiles it into verifiable financial constraints and permission boundaries.
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Intent Studio
+        </h1>
+        <p className="text-xs md:text-sm text-slate-600 mt-1">
+          Define what an AI agent is authorized to purchase. Natural language is compiled into deterministic mathematical constraints.
         </p>
       </div>
 
-      {/* Preset Scenario Prompts */}
-      <div className="rounded-xl bg-surface-100/60 border border-surface-border p-4">
-        <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-primary-light" />
-          <span>Quick Benchmark Scenarios:</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-          {samplePrompts.map((prompt, idx) => (
-            <button
-              key={idx}
-              onClick={() => {
-                setRawText(prompt.text);
-                handleCompile(prompt.text);
-              }}
-              className="text-left p-3 rounded-lg bg-surface-200 border border-surface-border hover:border-primary/50 hover:bg-surface-50 transition-all group"
-            >
-              <div className="text-xs font-bold text-slate-200 group-hover:text-primary-light transition-colors">
-                {prompt.title}
-              </div>
-              <div className="text-[11px] text-slate-400 mt-1 line-clamp-2">
-                "{prompt.text}"
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 2-Column Editor: Natural Input on Left, Structured Compilation on Right */}
+      {/* Split-Layout Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Natural Language Input */}
-        <div className="lg:col-span-6 rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-xl flex flex-col justify-between space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-bold text-slate-200 flex items-center gap-2">
-                <Tag className="w-4 h-4 text-indigo-400" />
-                <span>1. Natural Language Intent Input</span>
-              </label>
-              <span className="text-[11px] text-slate-400">Plain English description</span>
-            </div>
+        {/* Left Column: Natural Language Input (7 cols) */}
+        <div className="lg:col-span-7 fintech-card p-6 space-y-5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              1. Natural-Language Authorization Prompt
+            </span>
+            <span className="text-[10px] text-slate-400 font-mono">User Expressed Intent</span>
+          </div>
 
+          <div>
             <textarea
-              rows={5}
+              rows={4}
               value={rawText}
               onChange={(e) => setRawText(e.target.value)}
-              placeholder="e.g., Buy me running shoes under ₹4000. Ask me before purchasing."
-              className="w-full rounded-xl bg-surface-200 border border-surface-border p-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none font-sans leading-relaxed"
+              placeholder="e.g. Buy a work laptop under ₹40,000 from an approved merchant and ask me first."
+              className="w-full rounded-lg bg-surface-50 border border-surface-border p-3.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-all font-sans leading-relaxed shadow-xs"
             />
-
-            <div className="flex items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={() => handleCompile(rawText)}
-                disabled={compiling || !rawText.trim()}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-50 hover:bg-surface-50/80 border border-surface-border hover:border-primary/50 text-slate-100 text-xs font-semibold transition-all disabled:opacity-50"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 text-primary-light ${compiling ? "animate-spin" : ""}`} />
-                <span>{compiling ? "Compiling..." : "Re-compile Intent"}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleSaveIntent}
-                disabled={saving || !compiled}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-glow transition-all active:scale-95 disabled:opacity-50"
-              >
-                <Plus className="w-4 h-4" />
-                <span>{saving ? "Saving..." : "Register & Activate Intent"}</span>
-              </button>
-            </div>
-
-            {saveSuccess && (
-              <div className="p-3 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-                <span>{saveSuccess}</span>
-              </div>
-            )}
-
-            {errorMsg && (
-              <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
-                <span>{errorMsg}</span>
-              </div>
-            )}
           </div>
 
-          <div className="p-4 rounded-xl bg-surface-200/80 border border-surface-border text-xs text-slate-400 space-y-1.5">
-            <div className="font-semibold text-slate-300 flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Intent Boundary Guarantee</span>
+          {/* Quick Preset Chips */}
+          <div>
+            <span className="text-[11px] font-bold uppercase text-slate-500 block mb-2">
+              Preset Intent Templates:
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {samplePrompts.map((p, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setRawText(p.text);
+                    handleCompile(p.text);
+                  }}
+                  className="text-left p-2.5 rounded-lg bg-surface-50 border border-surface-border hover:border-blue-300 text-xs text-slate-700 hover:text-blue-900 transition-all group shadow-2xs"
+                >
+                  <div className="font-bold text-[11px] text-blue-700 group-hover:text-blue-900">
+                    {p.title}
+                  </div>
+                  <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                    "{p.text}"
+                  </div>
+                </button>
+              ))}
             </div>
-            <p>
-              Once saved, AI agents can only execute payments that strictly satisfy all extracted constraints and permission flags.
-            </p>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-3 pt-3 border-t border-surface-border">
+            <button
+              onClick={() => handleCompile()}
+              disabled={compiling || !rawText.trim()}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+            >
+              <Sparkles className={`w-3.5 h-3.5 ${compiling ? "animate-spin" : ""}`} />
+              <span>{compiling ? "Compiling Policy..." : "Compile Intent"}</span>
+            </button>
+
+            <button
+              onClick={handleClear}
+              className="px-4 py-2.5 rounded-lg bg-white hover:bg-slate-50 border border-surface-border text-slate-600 hover:text-slate-900 text-xs font-semibold transition-all shadow-2xs"
+            >
+              Clear
+            </button>
           </div>
         </div>
 
-        {/* Right Column: Structured Intent Compiler Output & AI Transparency */}
-        <div className="lg:col-span-6 rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-xl space-y-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-bold text-slate-200">
-                2. Compiled Structured Intent Policy
-              </h3>
+        {/* Right Column: Structured Compiled Policy (5 cols) */}
+        <div className="lg:col-span-5 fintech-card p-6 flex flex-col justify-between space-y-4">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-surface-border">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                2. Structured Policy Extraction
+              </span>
+              {compiled && (
+                <span
+                  className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded tracking-wide uppercase ${
+                    compiled.compiler === "gemini"
+                      ? "bg-purple-50 text-purple-700 border border-purple-200"
+                      : "bg-blue-50 text-blue-700 border border-blue-200"
+                  }`}
+                >
+                  {compiled.compiler === "gemini" ? "AI COMPILED" : "RULE FALLBACK"}
+                </span>
+              )}
             </div>
 
-            {/* AI Compiler Status Pill */}
-            {compiled && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border bg-surface-200">
-                <span className={`w-2 h-2 rounded-full ${isGeminiActive ? "bg-purple-400 animate-pulse" : "bg-cyan-400"}`} />
-                <span className="text-slate-300 uppercase tracking-wider text-[10px]">
-                  AI COMPILER: <strong className={isGeminiActive ? "text-purple-300" : "text-cyan-300"}>
-                    {isGeminiActive ? "GEMINI" : "DETERMINISTIC FALLBACK"}
-                  </strong>
-                </span>
+            {compiling ? (
+              <div className="py-16 text-center text-slate-400 text-xs animate-pulse">
+                Extracting structured constraints...
               </div>
-            )}
-          </div>
-
-          {compiled ? (
-            <div className="space-y-4">
-              {/* AI Transparency Box: "How IntentLedger interpreted this" */}
-              <div className={`p-4 rounded-xl border space-y-2.5 ${isGeminiActive ? "bg-indigo-950/40 border-indigo-500/40" : "bg-surface-200 border-surface-border"}`}>
-                <div className="flex items-center justify-between text-xs font-bold">
-                  <span className="flex items-center gap-1.5 uppercase text-indigo-300">
-                    <Info className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>How IntentLedger Interpreted This</span>
-                  </span>
-                  <span className="text-[10px] font-mono uppercase bg-surface-100 px-2 py-0.5 rounded text-slate-300 border border-surface-border">
-                    {isGeminiActive ? "Gemini Intent Extraction" : "Rule Engine Fallback"}
-                  </span>
-                </div>
-
-                {!isGeminiActive && (
-                  <div className="p-2 rounded bg-amber-950/40 border border-amber-500/30 text-[11px] text-amber-300 flex items-center gap-1.5">
-                    <Cpu className="w-3.5 h-3.5 shrink-0" />
-                    <span>Gemini unavailable. IntentLedger safely used its deterministic compiler.</span>
-                  </div>
-                )}
-
-                {/* Structured Interpretation Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs pt-1">
-                  <div className="p-2 rounded bg-surface-100/90 border border-surface-border">
-                    <span className="text-[9px] text-slate-400 block uppercase font-bold">Category</span>
-                    <strong className="text-white uppercase text-[11px]">
-                      {compiled.constraints.productCategory || compiled.category}
-                    </strong>
-                  </div>
-
-                  <div className="p-2 rounded bg-surface-100/90 border border-surface-border">
-                    <span className="text-[9px] text-slate-400 block uppercase font-bold">Budget Ceiling</span>
-                    <strong className="text-emerald-400 text-[11px]">
-                      {compiled.constraints.currency || "INR"} {compiled.constraints.maxAmount?.toLocaleString()}
-                    </strong>
-                  </div>
-
-                  <div className="p-2 rounded bg-surface-100/90 border border-surface-border">
-                    <span className="text-[9px] text-slate-400 block uppercase font-bold">Approval Mandate</span>
-                    <strong className="text-amber-300 text-[11px]">
-                      {compiled.constraints.requiresApproval ? "Required" : "Auto-Authorize"}
-                    </strong>
-                  </div>
-
-                  <div className="p-2 rounded bg-surface-100/90 border border-surface-border">
-                    <span className="text-[9px] text-slate-400 block uppercase font-bold">Purchase Permitted</span>
-                    <strong className={compiled.permissions.canPurchase ? "text-emerald-400" : "text-rose-400"}>
-                      {compiled.permissions.canPurchase ? "YES" : "NO"}
-                    </strong>
-                  </div>
-
-                  <div className="p-2 rounded bg-surface-100/90 border border-surface-border">
-                    <span className="text-[9px] text-slate-400 block uppercase font-bold">Subscription Permitted</span>
-                    <strong className={compiled.permissions.canSubscribe ? "text-emerald-400" : "text-rose-400"}>
-                      {compiled.permissions.canSubscribe ? "YES" : "NO"}
-                    </strong>
-                  </div>
-
-                  <div className="p-2 rounded bg-surface-100/90 border border-surface-border">
-                    <span className="text-[9px] text-slate-400 block uppercase font-bold">Quantity Limit</span>
-                    <strong className="text-white text-[11px]">
-                      Max {compiled.constraints.quantity || 1} unit(s)
-                    </strong>
-                  </div>
-                </div>
-
-                {compiled.interpretation?.prohibitions && (
-                  <div className="p-2 rounded bg-rose-950/60 border border-rose-500/30 text-[11px] text-rose-300">
-                    <strong>Explicit Prohibitions:</strong> {compiled.interpretation.prohibitions}
-                  </div>
-                )}
-
-                {/* Important Advisory Disclaimer */}
-                <div className="p-2 rounded bg-surface-100/60 border border-surface-border text-[11px] text-slate-400 italic flex items-center gap-1.5">
-                  <Lock className="w-3 h-3 text-indigo-400 shrink-0" />
-                  <span>
-                    AI interpretation is advisory. The deterministic policy engine enforces the final boundary.
-                  </span>
-                </div>
+            ) : !compiled ? (
+              <div className="py-16 text-center text-slate-400 text-xs">
+                Enter an intent prompt and click "Compile Intent" to preview structured policy.
               </div>
-
-              {/* Editable Policy Adjustments */}
-              <div className="p-3.5 rounded-xl bg-surface-200 border border-surface-border space-y-3">
-                <div className="text-[10px] font-bold uppercase text-slate-400 flex items-center gap-1">
-                  <Sliders className="w-3 h-3 text-cyan-400" />
-                  <span>Manual Policy Fine-Tuning</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase mb-1">Max Budget (INR)</span>
+            ) : (
+              <div className="space-y-3 mt-3">
+                {/* Budget */}
+                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border flex items-center justify-between">
+                  <span className="text-xs text-slate-600 font-medium">Budget Limit</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-slate-500">₹</span>
                     <input
                       type="number"
                       value={customMaxAmount}
                       onChange={(e) => setCustomMaxAmount(Number(e.target.value))}
-                      className="w-full rounded-lg bg-surface-100 border border-surface-border p-2 text-emerald-400 font-bold"
+                      className="w-24 px-2 py-1 rounded bg-white border border-surface-border text-right font-extrabold text-sm text-slate-900 focus:outline-none focus:border-blue-500 tabular-nums shadow-2xs"
                     />
+                    <span className="text-[10px] text-slate-500 font-mono">INR</span>
                   </div>
+                </div>
 
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase mb-1">Approval Policy</span>
-                    <select
-                      value={customApproval ? "true" : "false"}
-                      onChange={(e) => setCustomApproval(e.target.value === "true")}
-                      className="w-full rounded-lg bg-surface-100 border border-surface-border p-2 text-slate-200 font-medium"
-                    >
-                      <option value="true">Mandatory Approval</option>
-                      <option value="false">Auto-Authorize</option>
-                    </select>
+                {/* Category */}
+                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border flex items-center justify-between">
+                  <span className="text-xs text-slate-600 font-medium">Category</span>
+                  <span className="text-xs font-bold text-slate-900 uppercase">
+                    {compiled.category}
+                  </span>
+                </div>
+
+                {/* Approval Mandate */}
+                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border flex items-center justify-between">
+                  <span className="text-xs text-slate-600 font-medium">Approval Mandated</span>
+                  <button
+                    type="button"
+                    onClick={() => setCustomApproval(!customApproval)}
+                    className={`px-2.5 py-1 rounded text-xs font-bold uppercase transition-all ${
+                      customApproval
+                        ? "bg-amber-50 border border-amber-300 text-amber-800"
+                        : "bg-emerald-50 border border-emerald-300 text-emerald-800"
+                    }`}
+                  >
+                    {customApproval ? "REQUIRED" : "AUTO-ALLOW"}
+                  </button>
+                </div>
+
+                {/* Permissions */}
+                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-600">Can Purchase:</span>
+                    <span className="font-bold text-emerald-700">
+                      {compiled.permissions?.canPurchase !== false ? "YES" : "NO"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-600">Can Subscribe:</span>
+                    <span className={`font-bold ${compiled.permissions?.canSubscribe ? "text-amber-700" : "text-slate-500"}`}>
+                      {compiled.permissions?.canSubscribe ? "YES" : "NO (Blocked)"}
+                    </span>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="py-12 text-center text-slate-500 text-xs">
-              Type or select an intent on the left to compile structured policy.
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Feedback & Create Intent Action */}
+          <div className="space-y-3 pt-3 border-t border-surface-border">
+            {errorMsg && (
+              <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+                {errorMsg}
+              </div>
+            )}
+            {saveSuccess && (
+              <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs">
+                {saveSuccess}
+              </div>
+            )}
+
+            <button
+              onClick={handleSaveIntent}
+              disabled={saving || !compiled}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>{saving ? "Persisting Intent..." : "Create Intent Policy"}</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Active Intents Table / History */}
-      <div className="rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-xl">
-        <div className="flex items-center justify-between mb-4">
+      {/* Active Intents Table */}
+      <div className="fintech-card p-6 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-surface-border">
           <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-indigo-400" />
-            <h3 className="text-base font-bold text-white">
-              Registered Intents in Active Memory ({intentsList.length})
+            <Layers className="w-4 h-4 text-blue-600" />
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+              Active Intent Policies ({intentsList.length})
             </h3>
           </div>
           <button
             onClick={fetchIntents}
-            className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1"
+            className="text-xs text-slate-500 hover:text-slate-900 flex items-center gap-1 transition-colors font-medium"
           >
             <RefreshCw className={`w-3 h-3 ${loadingIntents ? "animate-spin" : ""}`} />
             <span>Refresh</span>
@@ -389,58 +330,54 @@ export const IntentStudio: React.FC = () => {
         </div>
 
         {loadingIntents ? (
-          <div className="py-8 text-center text-slate-500 text-xs animate-pulse">
-            Loading registered intents...
+          <div className="py-8 text-center text-slate-400 text-xs animate-pulse">
+            Loading active intent policies...
           </div>
         ) : intentsList.length === 0 ? (
-          <div className="py-8 text-center text-slate-500 text-xs">
-            No intents in memory.
+          <div className="py-8 text-center text-slate-400 text-xs">
+            No intent policies registered. Create your first intent above.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="text-slate-400 uppercase tracking-wider font-semibold border-b border-surface-border bg-surface-200/50">
-                <tr>
-                  <th className="py-3 px-4">Intent ID</th>
-                  <th className="py-3 px-4">Category</th>
-                  <th className="py-3 px-4">Natural Intent</th>
-                  <th className="py-3 px-4">Max Budget</th>
-                  <th className="py-3 px-4">Approval</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Registered</th>
+              <thead>
+                <tr className="border-b border-surface-border text-slate-500 uppercase text-[10px] tracking-wider bg-slate-50/50">
+                  <th className="py-2.5 px-3">Intent ID</th>
+                  <th className="py-2.5 px-3">Category</th>
+                  <th className="py-2.5 px-3">Raw Intent Prompt</th>
+                  <th className="py-2.5 px-3">Budget Cap</th>
+                  <th className="py-2.5 px-3">Approval Mandate</th>
+                  <th className="py-2.5 px-3">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-surface-border text-slate-300">
-                {intentsList.map((item) => (
-                  <tr key={item.id} className="hover:bg-surface-200/50 transition-colors">
-                    <td className="py-3 px-4 font-mono text-indigo-300 font-medium">
-                      {item.id}
+              <tbody className="divide-y divide-surface-border">
+                {intentsList.map((intent) => (
+                  <tr key={intent.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-3 px-3 font-mono text-[11px] text-slate-600 font-semibold">
+                      {intent.id}
                     </td>
-                    <td className="py-3 px-4 uppercase font-semibold text-slate-400">
-                      {item.category}
+                    <td className="py-3 px-3 font-bold text-slate-800 uppercase text-[11px]">
+                      {intent.category}
                     </td>
-                    <td className="py-3 px-4 max-w-xs truncate text-slate-200">
-                      "{item.rawText}"
+                    <td className="py-3 px-3 text-slate-600 italic max-w-xs truncate">
+                      "{intent.rawText}"
                     </td>
-                    <td className="py-3 px-4 font-semibold text-emerald-400">
-                      {item.constraints.currency || "INR"} {item.constraints.maxAmount?.toLocaleString()}
+                    <td className="py-3 px-3 font-extrabold text-slate-900 tabular-nums">
+                      ₹{intent.constraints.maxAmount?.toLocaleString()}
                     </td>
-                    <td className="py-3 px-4">
-                      {item.constraints.requiresApproval ? (
-                        <span className="px-2 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-300 text-[10px] font-bold">
-                          MANDATORY
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold">
-                          AUTO
-                        </span>
-                      )}
+                    <td className="py-3 px-3">
+                      <span
+                        className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${
+                          intent.constraints.requiresApproval
+                            ? "bg-amber-50 text-amber-800 border border-amber-200"
+                            : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                        }`}
+                      >
+                        {intent.constraints.requiresApproval ? "MANDATED" : "AUTO"}
+                      </span>
                     </td>
-                    <td className="py-3 px-4">
-                      <StatusPill status={item.status} />
-                    </td>
-                    <td className="py-3 px-4 text-slate-400 text-[11px]">
-                      {new Date(item.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    <td className="py-3 px-3">
+                      <StatusPill status={intent.status} />
                     </td>
                   </tr>
                 ))}

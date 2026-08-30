@@ -11,162 +11,205 @@ import {
   History,
   RotateCcw,
   Shield,
-  ExternalLink,
   Lock,
+  X,
 } from "lucide-react";
+import { HealthCheckData } from "../services/api";
 
-interface NavItem {
-  name: string;
-  path: string;
-  icon: React.ElementType;
-  badge?: string;
-  badgeType?: "new" | "pending" | "ready" | "demo" | "security";
+interface SidebarProps {
+  health?: HealthCheckData | null;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export const Sidebar: React.FC = () => {
-  const navItems: NavItem[] = [
+interface NavSection {
+  title: string;
+  items: {
+    name: string;
+    path: string;
+    icon: React.ElementType;
+    badge?: string;
+    badgeVariant?: "blue" | "amber" | "emerald" | "rose" | "indigo";
+  }[];
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ health, isOpen = true, onClose }) => {
+  const sections: NavSection[] = [
     {
-      name: "Dashboard",
-      path: "/",
-      icon: LayoutDashboard,
+      title: "OVERVIEW",
+      items: [
+        {
+          name: "Dashboard",
+          path: "/",
+          icon: LayoutDashboard,
+        },
+        {
+          name: "Judge Demo",
+          path: "/demo",
+          icon: Zap,
+          badge: "Live Tour",
+          badgeVariant: "amber",
+        },
+        {
+          name: "Intent Studio",
+          path: "/studio",
+          icon: Sparkles,
+        },
+        {
+          name: "Agent Simulation",
+          path: "/simulation",
+          icon: Bot,
+        },
+      ],
     },
     {
-      name: "Live Demo Mode",
-      path: "/demo",
-      icon: Zap,
-      badge: "Judge",
-      badgeType: "demo",
+      title: "GOVERNANCE",
+      items: [
+        {
+          name: "Decision Center",
+          path: "/decisions",
+          icon: ShieldCheck,
+        },
+        {
+          name: "Approval Center",
+          path: "/approvals",
+          icon: CheckSquare,
+        },
+        {
+          name: "Payment Gate",
+          path: "/payment",
+          icon: CreditCard,
+        },
+      ],
     },
     {
-      name: "Intent Studio",
-      path: "/studio",
-      icon: Sparkles,
-      badge: "Core",
-      badgeType: "ready",
-    },
-    {
-      name: "Agent Simulation",
-      path: "/simulation",
-      icon: Bot,
-      badge: "Lab",
-      badgeType: "new",
-    },
-    {
-      name: "Decision Center",
-      path: "/decisions",
-      icon: ShieldCheck,
-    },
-    {
-      name: "Approval Center",
-      path: "/approvals",
-      icon: CheckSquare,
-    },
-    {
-      name: "Payment Gate",
-      path: "/payment",
-      icon: CreditCard,
-    },
-    {
-      name: "Audit Ledger",
-      path: "/ledger",
-      icon: History,
-    },
-    {
-      name: "Intent Replay",
-      path: "/replay",
-      icon: RotateCcw,
-    },
-    {
-      name: "Security Center",
-      path: "/security",
-      icon: Lock,
-      badge: "Defense",
-      badgeType: "security",
+      title: "AUDIT & SECURITY",
+      items: [
+        {
+          name: "Audit Ledger",
+          path: "/ledger",
+          icon: History,
+        },
+        {
+          name: "Forensic Replay",
+          path: "/replay",
+          icon: RotateCcw,
+        },
+        {
+          name: "Security Center",
+          path: "/security",
+          icon: Lock,
+          badge: "Defense",
+          badgeVariant: "rose",
+        },
+      ],
     },
   ];
 
+  const isHealthy = health?.status === "healthy";
+
   return (
-    <aside className="w-64 bg-surface-200 border-r border-surface-border flex flex-col justify-between h-screen sticky top-0 shrink-0">
-      {/* Brand Header */}
+    <aside
+      className={`fixed lg:sticky top-0 z-40 h-screen w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between transition-transform duration-200 ease-in-out text-slate-300 ${
+        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      }`}
+    >
       <div>
-        <div className="p-5 border-b border-surface-border flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-accent-violet flex items-center justify-center text-white shadow-glow">
-            <Shield className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-base tracking-tight text-white">IntentLedger</span>
-              <span className="text-[10px] uppercase font-bold bg-primary/20 text-primary-light px-1.5 py-0.5 rounded">
-                v1.0
-              </span>
+        {/* Brand Header */}
+        <div className="h-16 px-5 border-b border-slate-800 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md">
+              <Shield className="w-4 h-4" />
             </div>
-            <p className="text-[11px] text-slate-400 font-medium">Accountability for AI</p>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-sm tracking-tight text-white">IntentLedger</span>
+                <span className="text-[9px] uppercase font-mono font-bold bg-slate-800 text-slate-300 px-1 py-0.2 rounded border border-slate-700">
+                  v1.0
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5">AI Commerce Governance</p>
+            </div>
           </div>
+
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
-        {/* Navigation Section */}
-        <div className="px-3 py-4 space-y-1">
-          <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-            Control Plane
-          </div>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 ${
-                    isActive
-                      ? "bg-primary text-white shadow-glow"
-                      : "text-slate-400 hover:text-slate-100 hover:bg-surface-100"
-                  }`
-                }
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span>{item.name}</span>
-                </div>
-                {item.badge && (
-                  <span
-                    className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
-                      item.badgeType === "demo"
-                        ? "bg-amber-950 text-amber-300 border border-amber-500/40"
-                        : item.badgeType === "ready"
-                        ? "bg-emerald-950 text-emerald-300 border border-emerald-500/30"
-                        : item.badgeType === "security"
-                        ? "bg-rose-950 text-rose-300 border border-rose-500/30"
-                        : "bg-indigo-950 text-indigo-300 border border-indigo-500/30"
-                    }`}
+        {/* Navigation Sections */}
+        <div className="px-3 py-4 space-y-6 overflow-y-auto max-h-[calc(100vh-10rem)]">
+          {sections.map((sec) => (
+            <div key={sec.title} className="space-y-1">
+              <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                {sec.title}
+              </div>
+              {sec.items.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => onClose && onClose()}
+                    className={({ isActive }) =>
+                      `flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                        isActive
+                          ? "bg-blue-600 text-white shadow-sm"
+                          : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/70"
+                      }`
+                    }
                   >
-                    {item.badge}
-                  </span>
-                )}
-              </NavLink>
-            );
-          })}
+                    <div className="flex items-center gap-2.5">
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span>{item.name}</span>
+                    </div>
+                    {item.badge && (
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wide uppercase ${
+                          item.badgeVariant === "amber"
+                            ? "bg-amber-950/80 text-amber-300 border border-amber-500/30"
+                            : item.badgeVariant === "rose"
+                            ? "bg-rose-950/80 text-rose-300 border border-rose-500/30"
+                            : "bg-blue-950/80 text-blue-300 border border-blue-500/30"
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Footer / Buildathon info */}
-      <div className="p-4 border-t border-surface-border bg-surface-300/40">
-        <div className="rounded-xl p-3 bg-surface-100 border border-surface-border">
+      {/* System Status Footer */}
+      <div className="p-3 border-t border-slate-800 bg-slate-950/60 space-y-2">
+        <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-300">Razorpay Buildathon</span>
-            <span className="text-[9px] font-bold bg-amber-950/80 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded">
-              Open Track
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">System Status</span>
+            <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              {isHealthy ? "Operational" : "Engine Ready"}
             </span>
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">Autonomous Agent Intent Safety Layer</p>
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary-light hover:text-white mt-2 transition-colors"
-          >
-            <span>Documentation</span>
-            <ExternalLink className="w-2.5 h-2.5" />
-          </a>
+          <div className="text-[10px] text-slate-400 mt-1 flex items-center justify-between font-mono">
+            <span>Storage:</span>
+            <span className="text-slate-200 font-semibold">
+              {health?.database.type === "mongodb" ? "MongoDB Atlas" : "In-Memory"}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between px-2 text-[10px] text-slate-400 font-medium">
+          <span>Razorpay Buildathon</span>
+          <span className="text-blue-400 font-semibold">Open Track</span>
         </div>
       </div>
     </aside>

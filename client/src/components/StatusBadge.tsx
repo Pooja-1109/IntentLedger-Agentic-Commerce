@@ -1,89 +1,103 @@
 import React from "react";
-import { CheckCircle2, AlertTriangle, ShieldAlert, Clock, Sparkles, Cpu } from "lucide-react";
+import { CheckCircle2, ShieldAlert, Clock } from "lucide-react";
 import { DecisionType } from "../types";
 
 interface DecisionBadgeProps {
   decision: DecisionType;
   size?: "sm" | "md" | "lg";
-  showIcon?: boolean;
 }
 
-export const DecisionBadge: React.FC<DecisionBadgeProps> = ({ decision, size = "md", showIcon = true }) => {
+export const DecisionBadge: React.FC<DecisionBadgeProps> = ({ decision, size = "md" }) => {
   const sizeClasses = {
-    sm: "px-2 py-0.5 text-xs font-semibold",
-    md: "px-2.5 py-1 text-xs font-bold tracking-wide",
-    lg: "px-4 py-1.5 text-sm font-extrabold tracking-wider",
+    sm: "px-2 py-0.5 text-[10px] gap-1",
+    md: "px-2.5 py-1 text-xs gap-1.5",
+    lg: "px-3.5 py-1.5 text-sm gap-2 font-bold",
   };
 
-  if (decision === "ALLOW") {
-    return (
-      <span
-        className={`inline-flex items-center gap-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 shadow-sm ${sizeClasses[size]}`}
-      >
-        {showIcon && <CheckCircle2 className={size === "lg" ? "w-4 h-4" : "w-3.5 h-3.5"} />}
-        ALLOW
-      </span>
-    );
-  }
-
-  if (decision === "ASK_APPROVAL") {
-    return (
-      <span
-        className={`inline-flex items-center gap-1.5 rounded-full bg-amber-950/80 border border-amber-500/40 text-amber-400 shadow-sm ${sizeClasses[size]}`}
-      >
-        {showIcon && <AlertTriangle className={size === "lg" ? "w-4 h-4" : "w-3.5 h-3.5"} />}
-        ASK APPROVAL
-      </span>
-    );
-  }
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full bg-rose-950/80 border border-rose-500/40 text-rose-400 shadow-sm ${sizeClasses[size]}`}
-    >
-      {showIcon && <ShieldAlert className={size === "lg" ? "w-4 h-4" : "w-3.5 h-3.5"} />}
-      BLOCK
-    </span>
-  );
-};
-
-export const CompilerModeBadge: React.FC<{ mode?: "ai" | "deterministic_fallback" }> = ({ mode }) => {
-  if (mode === "ai") {
-    return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/30 text-purple-300 text-xs font-medium">
-        <Sparkles className="w-3 h-3 text-purple-400" />
-        Gemini AI Powered
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-800/80 border border-slate-700 text-slate-300 text-xs font-medium">
-      <Cpu className="w-3 h-3 text-indigo-400" />
-      Deterministic Policy Engine
-    </span>
-  );
-};
-
-export const StatusPill: React.FC<{
-  status: "active" | "completed" | "cancelled" | "expired" | "pending";
-  label?: string;
-}> = ({ status, label }) => {
-  const styles: Record<string, string> = {
-    active: "bg-emerald-950/60 border-emerald-500/30 text-emerald-300",
-    completed: "bg-blue-950/60 border-blue-500/30 text-blue-300",
-    cancelled: "bg-slate-900 border-slate-700 text-slate-400",
-    expired: "bg-amber-950/60 border-amber-500/30 text-amber-300",
-    pending: "bg-indigo-950/60 border-indigo-500/30 text-indigo-300",
+  const iconSizes = {
+    sm: "w-3 h-3",
+    md: "w-3.5 h-3.5",
+    lg: "w-4 h-4",
   };
 
+  switch (decision) {
+    case "ALLOW":
+      return (
+        <span
+          className={`inline-flex items-center rounded-md font-bold tracking-wide uppercase status-pill-emerald ${sizeClasses[size]}`}
+        >
+          <CheckCircle2 className={iconSizes[size]} />
+          <span>ALLOWED</span>
+        </span>
+      );
+    case "ASK_APPROVAL":
+      return (
+        <span
+          className={`inline-flex items-center rounded-md font-bold tracking-wide uppercase status-pill-amber ${sizeClasses[size]}`}
+        >
+          <Clock className={iconSizes[size]} />
+          <span>REVIEW MANDATE</span>
+        </span>
+      );
+    case "BLOCK":
+      return (
+        <span
+          className={`inline-flex items-center rounded-md font-bold tracking-wide uppercase status-pill-rose ${sizeClasses[size]}`}
+        >
+          <ShieldAlert className={iconSizes[size]} />
+          <span>BLOCKED</span>
+        </span>
+      );
+    default:
+      return (
+        <span
+          className={`inline-flex items-center rounded-md font-bold tracking-wide uppercase status-pill-slate ${sizeClasses[size]}`}
+        >
+          <span>{decision}</span>
+        </span>
+      );
+  }
+};
+
+interface StatusPillProps {
+  status: string;
+  className?: string;
+}
+
+export const StatusPill: React.FC<StatusPillProps> = ({ status, className = "" }) => {
+  const s = status.toUpperCase();
+
+  if (s === "ACTIVE" || s === "COMPLETED" || s === "APPROVED" || s === "SETTLED" || s === "VERIFIED" || s === "OPERATIONAL") {
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase status-pill-emerald ${className}`}>
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+        {status}
+      </span>
+    );
+  }
+
+  if (s === "PENDING" || s === "AUTHORIZED" || s === "REVIEW" || s === "TEST MODE" || s === "FALLBACK" || s === "IN-MEMORY") {
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase status-pill-amber ${className}`}>
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+        {status}
+      </span>
+    );
+  }
+
+  if (s === "BLOCKED" || s === "REJECTED" || s === "FAILED" || s === "VIOLATION" || s === "MISMATCH" || s === "DISCONNECTED") {
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase status-pill-rose ${className}`}>
+        <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+        {status}
+      </span>
+    );
+  }
+
   return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-xs font-medium ${
-        styles[status] || styles.active
-      }`}
-    >
-      <Clock className="w-2.5 h-2.5 opacity-70" />
-      {label || status.toUpperCase()}
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium uppercase status-pill-slate ${className}`}>
+      <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+      {status}
     </span>
   );
 };

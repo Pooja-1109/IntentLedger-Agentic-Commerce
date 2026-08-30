@@ -1,127 +1,96 @@
 import React from "react";
-import { MessageSquare, Bot, ShieldCheck, GitCommit, CreditCard, Layers } from "lucide-react";
-
-interface PipelineStep {
-  id: string;
-  title: string;
-  subtitle: string;
-  icon: React.ElementType;
-  badgeText: string;
-  badgeColor: string;
-  description: string;
-}
+import { Sparkles, Bot, ShieldCheck, CheckSquare, CreditCard, History } from "lucide-react";
 
 export const PipelineFlow: React.FC = () => {
-  const steps: PipelineStep[] = [
+  const steps = [
     {
-      id: "intent",
-      title: "1. User Intent",
-      subtitle: "Natural Language",
-      icon: MessageSquare,
-      badgeText: "Boundary Set",
-      badgeColor: "bg-indigo-950/80 text-indigo-300 border-indigo-500/30",
-      description: "User defines budget, allowed merchants, category, and approval mandates.",
+      num: "01",
+      name: "User Intent",
+      desc: "Natural-language policy boundaries",
+      icon: Sparkles,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50 border-blue-200",
     },
     {
-      id: "agent",
-      title: "2. Agent Action",
-      subtitle: "Autonomous Proposal",
+      num: "02",
+      name: "AI Compiler",
+      desc: "Gemini / Rule policy extraction",
       icon: Bot,
-      badgeText: "Candidate Action",
-      badgeColor: "bg-purple-950/80 text-purple-300 border-purple-500/30",
-      description: "AI shopping agent finds an item and proposes an exact price & merchant.",
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50 border-indigo-200",
     },
     {
-      id: "engine",
-      title: "3. Intent Check",
-      subtitle: "Policy Engine",
+      num: "03",
+      name: "Policy Gate",
+      desc: "Deterministic policy checks",
       icon: ShieldCheck,
-      badgeText: "Deterministic",
-      badgeColor: "bg-cyan-950/80 text-cyan-300 border-cyan-500/30",
-      description: "Compares proposed price, merchant, quantity, and subscription flag.",
+      color: "text-cyan-600",
+      bgColor: "bg-cyan-50 border-cyan-200",
     },
     {
-      id: "decision",
-      title: "4. Decision & Drift",
-      subtitle: "ALLOW / APPROVAL / BLOCK",
-      icon: GitCommit,
-      badgeText: "Drift Diagnostic",
-      badgeColor: "bg-amber-950/80 text-amber-300 border-amber-500/30",
-      description: "Detects budget or merchant drift; blocks unauthorized actions automatically.",
+      num: "04",
+      name: "Human Approval",
+      desc: "Cryptographic token binding",
+      icon: CheckSquare,
+      color: "text-amber-600",
+      bgColor: "bg-amber-50 border-amber-200",
     },
     {
-      id: "payment",
-      title: "5. Payment Gate",
-      subtitle: "Simulated Execution",
+      num: "05",
+      name: "Payment Gate",
+      desc: "Razorpay Test / Simulated Rail",
       icon: CreditCard,
-      badgeText: "Zero Real Risk",
-      badgeColor: "bg-emerald-950/80 text-emerald-300 border-emerald-500/30",
-      description: "Payment only unlocks if policy ALLOWs or explicit user approval is granted.",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50 border-emerald-200",
     },
     {
-      id: "ledger",
-      title: "6. Audit Ledger",
-      subtitle: "Immutable Timeline",
-      icon: Layers,
-      badgeText: "Auditable",
-      badgeColor: "bg-blue-950/80 text-blue-300 border-blue-500/30",
-      description: "Every proposal, check, decision, and payment is permanently timestamped.",
+      num: "06",
+      name: "Audit Ledger",
+      desc: "Append-only immutable record",
+      icon: History,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50 border-purple-200",
     },
   ];
 
   return (
-    <div className="rounded-2xl bg-surface-100 border border-surface-border p-6 shadow-xl relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none -z-0" />
-
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 relative z-10">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary-light text-xs font-semibold uppercase tracking-wider mb-2">
-            Architectural Blueprint
-          </div>
-          <h2 className="text-xl font-bold text-slate-100">
-            How IntentLedger Protects Autonomous Commerce
-          </h2>
-          <p className="text-sm text-slate-400 mt-0.5">
-            Deterministic safety gate operating between AI Agent actions and Financial Execution
-          </p>
+    <div className="fintech-card p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+            Governance Pipeline
+          </span>
+          <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
+            • 6-Stage Intent Accountability Architecture
+          </span>
         </div>
+        <span className="text-[10px] font-mono font-bold text-primary bg-primary-dim px-2 py-0.5 rounded border border-blue-200">
+          Deterministic Flow
+        </span>
       </div>
 
-      {/* Grid of Steps */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 relative z-10">
-        {steps.map((step, idx) => {
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {steps.map((step) => {
           const Icon = step.icon;
           return (
             <div
-              key={step.id}
-              className="group relative rounded-xl bg-surface-200/90 border border-surface-border p-4 transition-all duration-200 hover:border-primary/50 hover:bg-surface-50/50 hover:shadow-lg flex flex-col justify-between"
+              key={step.num}
+              className="p-3.5 rounded-lg bg-surface-50 border border-surface-border hover:border-surface-borderHover transition-all flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-9 h-9 rounded-lg bg-surface-100 border border-surface-border flex items-center justify-center text-primary-light group-hover:bg-primary group-hover:text-white transition-colors">
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${step.badgeColor}`}>
-                    {step.badgeText}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-mono font-bold text-slate-400">
+                    {step.num}
                   </span>
+                  <div className={`p-1.5 rounded-md border ${step.bgColor}`}>
+                    <Icon className={`w-3.5 h-3.5 ${step.color}`} />
+                  </div>
                 </div>
-
-                <h3 className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">
-                  {step.title}
-                </h3>
-                <div className="text-xs font-medium text-indigo-400 mt-0.5">
-                  {step.subtitle}
+                <div className="text-xs font-bold text-slate-900">{step.name}</div>
+                <div className="text-[11px] text-slate-500 mt-1 leading-snug font-normal">
+                  {step.desc}
                 </div>
-                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                  {step.description}
-                </p>
               </div>
-
-              {idx < steps.length - 1 && (
-                <div className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 z-20 text-slate-600 text-xs">
-                  →
-                </div>
-              )}
             </div>
           );
         })}

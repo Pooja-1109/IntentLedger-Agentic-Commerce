@@ -5,27 +5,30 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#080B11",
+        background: "#F8FAFC", // Fintech Light Workspace
         surface: {
-          50: "#1A2234",
-          100: "#131927",
-          200: "#0F1420",
-          300: "#0B0F18",
-          border: "#1E293B",
-          borderHover: "#334155",
+          50: "#FFFFFF",
+          100: "#FFFFFF",
+          200: "#F1F5F9",
+          300: "#E2E8F0",
+          border: "#E2E8F0",
+          borderHover: "#CBD5E1",
+          dark: "#0F172A",
+          darkBorder: "#1E293B",
         },
         primary: {
-          DEFAULT: "#6366F1", // Indigo
-          hover: "#4F46E5",
-          light: "#818CF8",
-          dim: "rgba(99, 102, 241, 0.12)",
+          DEFAULT: "#2563EB", // Fintech Cobalt Blue
+          hover: "#1D4ED8",
+          light: "#3B82F6",
+          dim: "#EFF6FF",
         },
         accent: {
-          cyan: "#06B6D4",
-          emerald: "#10B981",
-          amber: "#F59E0B",
-          rose: "#F43F5E",
-          violet: "#8B5CF6",
+          cyan: "#0284C7",
+          emerald: "#059669",
+          amber: "#D97706",
+          rose: "#DC2626",
+          violet: "#7C3AED",
+          indigo: "#4F46E5",
         },
       },
       fontFamily: {
@@ -33,19 +36,18 @@ export default {
         mono: ["JetBrains Mono", "Fira Code", "Consolas", "monospace"],
       },
       boxShadow: {
-        glow: "0 0 25px -5px rgba(99, 102, 241, 0.25)",
-        "glow-emerald": "0 0 25px -5px rgba(16, 185, 129, 0.25)",
-        "glow-rose": "0 0 25px -5px rgba(244, 63, 94, 0.25)",
-        "glow-amber": "0 0 25px -5px rgba(245, 158, 11, 0.25)",
+        card: "0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)",
+        cardHover: "0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07)",
+        dropdown: "0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04)",
       },
       keyframes: {
-        pulseSlow: {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.5" },
+        fadeIn: {
+          "0%": { opacity: "0", transform: "translateY(3px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
       },
       animation: {
-        "pulse-slow": "pulseSlow 3s ease-in-out infinite",
+        fadeIn: "fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
       },
     },
   },
