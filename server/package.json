@@ -1,0 +1,42 @@
+{
+  "name": "intent-ledger-server",
+  "version": "1.0.0",
+  "description": "Backend engine for IntentLedger - Intent Accountability Layer",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test:decision": "ts-node-dev --transpile-only src/tests/decision.test.ts",
+    "test:workflow": "ts-node-dev --transpile-only src/tests/workflow.test.ts",
+    "test:compiler": "ts-node-dev --transpile-only src/tests/compiler.test.ts",
+    "test:persistence": "ts-node-dev --transpile-only src/tests/persistence.test.ts",
+    "test:razorpay": "ts-node-dev --transpile-only src/tests/razorpay.test.ts",
+    "test": "ts-node-dev --transpile-only src/tests/decision.test.ts && ts-node-dev --transpile-only src/tests/workflow.test.ts && ts-node-dev --transpile-only src/tests/compiler.test.ts && ts-node-dev --transpile-only src/tests/persistence.test.ts && ts-node-dev --transpile-only src/tests/razorpay.test.ts"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.18.2",
+    "razorpay": "^2.9.6",
+    "uuid": "^9.0.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.9",
+    "@types/uuid": "^9.0.8",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.2"
+  },
+  "keywords": [
+    "intent-ledger",
+    "express",
+    "backend"
+  ],
+  "author": "IntentLedger Team",
+  "license": "MIT"
+}

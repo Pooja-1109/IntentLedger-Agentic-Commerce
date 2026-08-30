@@ -1,0 +1,5 @@
+# Abstract
+
+As AI shopping agents gain autonomous access to payment credentials, there is no reliable intermediary verifying that an agent's proposed action still adheres to the user's original boundaries. IntentLedger introduces a deterministic, cryptographic intent accountability layer sitting between autonomous AI agents and payment gateways. 
+
+IntentLedger compiles natural-language user mandates into structured, verifiable constraints (budget limits, merchant allowlists, subscription prohibitions). When an AI agent discovers a product and proposes an action, the deterministic policy engine evaluates the proposal and issues explainable ALLOW, ASK_APPROVAL, or BLOCK verdicts. For sensitive purchases, human approvals generate cryptographic SHA-256 tokens bound to immutable proposal snapshots. Any subsequent modification of the proposal invalidates the authorization before order creation. Integrated with Razorpay test mode, IntentLedger records all decisions and settlements to an append-only audit ledger with forensic replay capabilities.
