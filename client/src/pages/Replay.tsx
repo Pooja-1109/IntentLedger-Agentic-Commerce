@@ -124,17 +124,17 @@ export const IntentReplayPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-surface-border">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-800 bg-cyan-50 px-2.5 py-0.5 rounded-full border border-cyan-200">
               Time-Travel Lifecycle Reconstruction
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
             Forensic Replay
           </h1>
-          <p className="text-xs md:text-sm text-slate-600 mt-1">
+          <p className="text-sm text-slate-600 mt-1 font-normal">
             Reconstruct the complete chronological lifecycle of an AI-driven transaction from immutable ledger records.
           </p>
         </div>
@@ -145,7 +145,7 @@ export const IntentReplayPage: React.FC = () => {
             <select
               value={selectedIntentId}
               onChange={(e) => setSelectedIntentId(e.target.value)}
-              className="w-full text-xs font-semibold rounded-lg bg-white border border-surface-border p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs"
+              className="w-full text-xs font-bold rounded-lg bg-white border border-slate-300 p-2.5 text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs"
             >
               {intents.map((intent) => (
                 <option key={intent.id} value={intent.id}>
@@ -160,10 +160,10 @@ export const IntentReplayPage: React.FC = () => {
       {/* Lifecycle Stage Summary Strip */}
       <div className="fintech-card p-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
             Transaction Lifecycle Proof
           </span>
-          <span className="text-[10px] font-mono text-slate-400">
+          <span className="text-xs font-mono text-slate-500 font-bold">
             {events.length} Historical Events
           </span>
         </div>
@@ -179,14 +179,14 @@ export const IntentReplayPage: React.FC = () => {
           ].map((stg, i) => (
             <div
               key={i}
-              className={`p-2.5 rounded-lg border text-[11px] font-bold ${
+              className={`p-3 rounded-lg border text-xs font-bold ${
                 stg.done
-                  ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-                  : "bg-surface-50 border-surface-border text-slate-400"
+                  ? "bg-emerald-50 border-emerald-300 text-emerald-900"
+                  : "bg-slate-50 border-slate-200 text-slate-400"
               }`}
             >
               <span>{stg.label}</span>
-              <span className="block text-[9px] mt-0.5 font-medium">
+              <span className="block text-[10px] mt-0.5 font-bold">
                 {stg.done ? "✓ Recorded" : "Pending"}
               </span>
             </div>
@@ -196,11 +196,11 @@ export const IntentReplayPage: React.FC = () => {
 
       {/* Main Replay Player UI */}
       {loading ? (
-        <div className="py-24 text-center text-slate-400 text-xs animate-pulse">
+        <div className="py-24 text-center text-slate-500 text-xs animate-pulse font-medium">
           Loading replay timeline...
         </div>
       ) : events.length === 0 ? (
-        <div className="fintech-card p-12 text-center text-slate-400 text-xs">
+        <div className="fintech-card p-12 text-center text-slate-500 text-xs font-medium">
           No audit events found for this intent.
         </div>
       ) : (
@@ -211,7 +211,7 @@ export const IntentReplayPage: React.FC = () => {
               <button
                 onClick={handleFirst}
                 disabled={currentStepIndex === 0}
-                className="p-2 rounded-lg bg-white hover:bg-slate-50 border border-surface-border disabled:opacity-30 text-slate-700 transition-all shadow-2xs"
+                className="p-2.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 disabled:opacity-30 text-slate-800 transition-all shadow-2xs"
                 title="First Step"
               >
                 <SkipBack className="w-4 h-4" />
@@ -220,7 +220,7 @@ export const IntentReplayPage: React.FC = () => {
               <button
                 onClick={handlePrev}
                 disabled={currentStepIndex === 0}
-                className="p-2 rounded-lg bg-white hover:bg-slate-50 border border-surface-border disabled:opacity-30 text-slate-700 transition-all shadow-2xs"
+                className="p-2.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 disabled:opacity-30 text-slate-800 transition-all shadow-2xs"
                 title="Previous Step"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -228,7 +228,7 @@ export const IntentReplayPage: React.FC = () => {
 
               <button
                 onClick={handleTogglePlay}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
               >
                 {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                 <span>{isPlaying ? "Pause" : "Play Timeline"}</span>
@@ -237,7 +237,7 @@ export const IntentReplayPage: React.FC = () => {
               <button
                 onClick={handleNext}
                 disabled={currentStepIndex === events.length - 1}
-                className="p-2 rounded-lg bg-white hover:bg-slate-50 border border-surface-border disabled:opacity-30 text-slate-700 transition-all shadow-2xs"
+                className="p-2.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 disabled:opacity-30 text-slate-800 transition-all shadow-2xs"
                 title="Next Step"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -246,7 +246,7 @@ export const IntentReplayPage: React.FC = () => {
               <button
                 onClick={handleLast}
                 disabled={currentStepIndex === events.length - 1}
-                className="p-2 rounded-lg bg-white hover:bg-slate-50 border border-surface-border disabled:opacity-30 text-slate-700 transition-all shadow-2xs"
+                className="p-2.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 disabled:opacity-30 text-slate-800 transition-all shadow-2xs"
                 title="Last Step"
               >
                 <SkipForward className="w-4 h-4" />
@@ -254,12 +254,12 @@ export const IntentReplayPage: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-xs font-mono text-slate-600">
-                Step <span className="font-bold text-slate-900">{currentStepIndex + 1}</span> of{" "}
-                <span className="font-bold text-slate-900">{events.length}</span>
+              <span className="text-xs font-mono text-slate-700 font-semibold">
+                Step <span className="font-extrabold text-slate-900">{currentStepIndex + 1}</span> of{" "}
+                <span className="font-extrabold text-slate-900">{events.length}</span>
               </span>
 
-              <div className="w-32 bg-slate-100 rounded-full h-2 overflow-hidden border border-surface-border">
+              <div className="w-36 bg-slate-200 rounded-full h-2.5 overflow-hidden border border-slate-300">
                 <div
                   className="bg-blue-600 h-full transition-all duration-300"
                   style={{ width: `${((currentStepIndex + 1) / events.length) * 100}%` }}
@@ -272,16 +272,16 @@ export const IntentReplayPage: React.FC = () => {
           {currentEvent && (
             <div className="fintech-card p-6 md:p-8 space-y-6">
               {/* Event Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-surface-border">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-lg bg-surface-50 border border-surface-border">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
+                <div className="flex items-center gap-3.5">
+                  <div className="p-3 rounded-lg bg-slate-100 border border-slate-200">
                     {getStageIcon(currentEvent.eventType)}
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono font-bold uppercase text-slate-500">
+                    <span className="text-[11px] font-mono font-bold uppercase text-slate-500">
                       Step {currentStepIndex + 1} • {currentEvent.actor}
                     </span>
-                    <h3 className="text-lg font-extrabold text-slate-900 tracking-tight uppercase">
+                    <h3 className="text-xl font-extrabold text-slate-900 tracking-tight uppercase">
                       {currentEvent.eventType.replace(/_/g, " ")}
                     </h3>
                   </div>
@@ -289,18 +289,18 @@ export const IntentReplayPage: React.FC = () => {
 
                 <div className="text-left sm:text-right">
                   <span className="text-[10px] font-bold text-slate-500 uppercase block">Timestamp</span>
-                  <span className="font-mono text-xs text-slate-700 tabular-nums">
+                  <span className="font-mono text-xs text-slate-900 tabular-nums font-bold">
                     {new Date(currentEvent.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
                   </span>
                 </div>
               </div>
 
               {/* Summary Statement */}
-              <div className="p-4 rounded-lg bg-surface-50 border border-surface-border">
+              <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
                 <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1">
                   Event Description:
                 </span>
-                <p className="text-sm font-semibold text-slate-900">
+                <p className="text-base font-semibold text-slate-900">
                   {currentEvent.summary}
                 </p>
               </div>
@@ -310,7 +310,7 @@ export const IntentReplayPage: React.FC = () => {
                 <span className="text-xs font-bold uppercase text-slate-700 block">
                   Immutable Event Payload:
                 </span>
-                <pre className="p-4 rounded-lg bg-slate-900 border border-slate-800 font-mono text-xs text-cyan-300 overflow-x-auto leading-relaxed shadow-inner">
+                <pre className="p-4 rounded-lg bg-slate-950 border border-slate-800 font-mono text-xs text-cyan-300 overflow-x-auto leading-relaxed shadow-inner font-semibold">
                   {JSON.stringify(
                     {
                       id: currentEvent.id,
@@ -330,7 +330,7 @@ export const IntentReplayPage: React.FC = () => {
 
           {/* Timeline Step Scrubber Ribbon */}
           <div className="fintech-card p-4 overflow-x-auto">
-            <div className="flex items-center gap-2 min-w-max">
+            <div className="flex items-center gap-2.5 min-w-max">
               {events.map((evt, idx) => (
                 <button
                   key={evt.id}
@@ -338,14 +338,14 @@ export const IntentReplayPage: React.FC = () => {
                     setIsPlaying(false);
                     setCurrentStepIndex(idx);
                   }}
-                  className={`p-2.5 rounded-lg border text-left text-xs transition-all ${
+                  className={`p-3 rounded-lg border text-left text-xs transition-all ${
                     idx === currentStepIndex
-                      ? "bg-blue-600 text-white border-blue-600 shadow-xs"
-                      : "bg-surface-50 border-surface-border text-slate-600 hover:text-slate-900"
+                      ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                      : "bg-white border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-300 shadow-2xs"
                   }`}
                 >
-                  <div className="font-mono text-[9px] opacity-75">STEP {idx + 1}</div>
-                  <div className="font-bold text-[11px] truncate max-w-[130px] mt-0.5">
+                  <div className="font-mono text-[9px] opacity-80 font-bold">STEP {idx + 1}</div>
+                  <div className="font-bold text-xs truncate max-w-[140px] mt-0.5">
                     {evt.eventType.replace(/_/g, " ")}
                   </div>
                 </button>

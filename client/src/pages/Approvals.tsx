@@ -83,28 +83,28 @@ export const ApprovalsPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-surface-border">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
               Human-in-the-Loop Governance
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
             Approval Center
           </h1>
-          <p className="text-xs md:text-sm text-slate-600 mt-1">
+          <p className="text-sm text-slate-600 mt-1 font-normal">
             Human authorization queue for transactions requiring additional trust before money moves.
           </p>
         </div>
 
         {/* Filter Toggle */}
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-surface-border self-start md:self-auto text-xs">
+        <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-lg border border-slate-200 self-start md:self-auto text-xs">
           <button
             onClick={() => setFilterMode("pending")}
-            className={`px-3 py-1.5 rounded-md font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-md font-bold transition-all ${
               filterMode === "pending"
-                ? "bg-white text-blue-700 shadow-xs"
+                ? "bg-white text-blue-700 shadow-2xs border border-slate-200"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
@@ -112,9 +112,9 @@ export const ApprovalsPage: React.FC = () => {
           </button>
           <button
             onClick={() => setFilterMode("all")}
-            className={`px-3 py-1.5 rounded-md font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-md font-bold transition-all ${
               filterMode === "all"
-                ? "bg-white text-blue-700 shadow-xs"
+                ? "bg-white text-blue-700 shadow-2xs border border-slate-200"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
@@ -125,52 +125,52 @@ export const ApprovalsPage: React.FC = () => {
             className="p-1.5 text-slate-500 hover:text-slate-900 ml-1"
             title="Refresh"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>
       </div>
 
       {/* Global Alerts */}
       {actionSuccessMsg && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <div>
-              <span className="font-bold">{actionSuccessMsg.msg}</span>
+              <span className="font-bold text-sm">{actionSuccessMsg.msg}</span>
               {actionSuccessMsg.token && (
-                <div className="font-mono text-[11px] text-emerald-900 mt-0.5 font-semibold">
-                  Token: {actionSuccessMsg.token}
+                <div className="font-mono text-xs text-emerald-900 mt-0.5 font-bold">
+                  Cryptographic Token: {actionSuccessMsg.token}
                 </div>
               )}
             </div>
           </div>
           <Link
             to="/payment"
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold shrink-0 self-start sm:self-auto shadow-sm"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold shrink-0 self-start sm:self-auto shadow-sm"
           >
             <span>Proceed to Payment Gate</span>
-            <ArrowRight className="w-3 h-3" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       )}
 
       {actionErrorMsg && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-          <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
-          <span className="font-semibold">{actionErrorMsg.msg}</span>
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 text-xs flex items-center gap-2 shadow-xs">
+          <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
+          <span className="font-bold text-sm">{actionErrorMsg.msg}</span>
         </div>
       )}
 
       {/* Approvals Queue */}
       {loading ? (
-        <div className="py-24 text-center text-slate-400 text-xs animate-pulse">
+        <div className="py-24 text-center text-slate-500 text-xs animate-pulse font-medium">
           Loading approval requests from backend...
         </div>
       ) : approvals.length === 0 ? (
         <div className="fintech-card p-12 text-center space-y-3">
-          <UserCheck className="w-10 h-10 text-slate-400 mx-auto" />
-          <h3 className="text-sm font-bold text-slate-900">No Approval Requests in Queue</h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+          <UserCheck className="w-12 h-12 text-slate-400 mx-auto" />
+          <h3 className="text-base font-bold text-slate-900">No Approval Requests in Queue</h3>
+          <p className="text-xs text-slate-600 max-w-sm mx-auto">
             {filterMode === "pending"
               ? "All transactions are currently reviewed or auto-authorized."
               : "No historical approval records found."}
@@ -184,49 +184,49 @@ export const ApprovalsPage: React.FC = () => {
               className="fintech-card p-6 space-y-4 hover:border-slate-300 transition-all"
             >
               {/* Top Row: Product, Amount, Status */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-surface-border">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono text-slate-500 font-semibold">
-                      REQ: {req.id}
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[11px] font-mono text-slate-600 font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                      REQUEST ID: {req.id}
                     </span>
                     <StatusPill status={req.status} />
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 mt-1">
+                  <h3 className="text-lg font-extrabold text-slate-900 mt-1">
                     {req.proposalSnapshot.product}
                   </h3>
-                  <div className="text-xs text-slate-500">
-                    Merchant: <span className="text-slate-800 font-semibold">{req.proposalSnapshot.merchant}</span>
+                  <div className="text-xs text-slate-600 font-medium mt-0.5">
+                    Merchant: <span className="text-slate-900 font-bold">{req.proposalSnapshot.merchant}</span>
                   </div>
                 </div>
 
                 <div className="text-left sm:text-right">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase">
+                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                     Authorization Amount
                   </div>
-                  <div className="text-2xl font-extrabold text-slate-900 tabular-nums mt-0.5">
-                    ₹{req.proposalSnapshot.amount?.toLocaleString()} <span className="text-xs font-mono text-slate-500">INR</span>
+                  <div className="text-3xl font-extrabold text-slate-900 tabular-nums mt-0.5">
+                    ₹{req.proposalSnapshot.amount?.toLocaleString()} <span className="text-xs font-mono text-slate-500 font-normal">INR</span>
                   </div>
                 </div>
               </div>
 
               {/* Middle Row: Snapshot & Policy Metadata */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                   <span className="text-[10px] font-bold text-slate-500 uppercase block">Bound Intent ID</span>
-                  <span className="font-mono text-slate-700 truncate block mt-0.5 font-semibold">
+                  <span className="font-mono text-slate-900 truncate block mt-0.5 font-bold">
                     {req.intentId}
                   </span>
                 </div>
 
-                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                   <span className="text-[10px] font-bold text-slate-500 uppercase block">Requested At</span>
-                  <span className="font-mono text-slate-700 block mt-0.5 tabular-nums">
+                  <span className="font-mono text-slate-900 block mt-0.5 tabular-nums font-semibold">
                     {new Date(req.createdAt).toLocaleString()}
                   </span>
                 </div>
 
-                <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                   <span className="text-[10px] font-bold text-slate-500 uppercase block">Authorization TTL</span>
                   <span className="font-mono text-amber-800 font-bold block mt-0.5">
                     {req.status === "PENDING"
@@ -241,14 +241,14 @@ export const ApprovalsPage: React.FC = () => {
               {/* Cryptographic Snapshot Hash Proof */}
               {req.status === "APPROVED" && req.approvalToken && (
                 <div className="p-3.5 rounded-lg bg-blue-50 border border-blue-200 text-xs space-y-1">
-                  <div className="flex items-center gap-1.5 text-blue-800 font-bold uppercase text-[10px]">
-                    <Lock className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1.5 text-blue-900 font-bold uppercase text-[11px]">
+                    <Lock className="w-3.5 h-3.5 text-blue-700" />
                     <span>Cryptographic Proposal Snapshot Hash Bound</span>
                   </div>
-                  <div className="font-mono text-[11px] text-blue-900 break-all font-semibold">
+                  <div className="font-mono text-xs text-blue-950 break-all font-bold">
                     Token: {req.approvalToken}
                   </div>
-                  <div className="text-[10px] text-slate-600">
+                  <div className="text-[11px] text-slate-700 font-medium">
                     Any modification of amount or merchant at the Payment Gate will result in immediate 403 context rejection.
                   </div>
                 </div>
@@ -260,7 +260,7 @@ export const ApprovalsPage: React.FC = () => {
                   <button
                     onClick={() => handleReject(req.id)}
                     disabled={actionLoadingId === req.id}
-                    className="px-4 py-2 rounded-lg bg-white hover:bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold transition-all disabled:opacity-50 shadow-2xs"
+                    className="px-4 py-2.5 rounded-lg bg-white hover:bg-rose-50 border border-rose-300 text-rose-700 text-xs font-bold transition-all disabled:opacity-50 shadow-2xs"
                   >
                     Reject Transaction
                   </button>
@@ -268,9 +268,9 @@ export const ApprovalsPage: React.FC = () => {
                   <button
                     onClick={() => handleApprove(req.id)}
                     disabled={actionLoadingId === req.id}
-                    className="flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95 disabled:opacity-50"
                   >
-                    <CheckSquare className="w-3.5 h-3.5" />
+                    <CheckSquare className="w-4 h-4" />
                     <span>{actionLoadingId === req.id ? "Authorizing..." : "Approve Request"}</span>
                   </button>
                 </div>

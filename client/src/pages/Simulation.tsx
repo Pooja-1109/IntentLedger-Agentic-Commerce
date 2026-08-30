@@ -102,16 +102,16 @@ export const SimulationPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header */}
-      <div className="pb-2 border-b border-surface-border">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+      <div className="pb-4 border-b border-slate-200">
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
             Transaction Laboratory
           </span>
         </div>
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
           Commerce Simulator
         </h1>
-        <p className="text-xs md:text-sm text-slate-600 mt-1">
+        <p className="text-sm text-slate-600 mt-1 font-normal">
           Test how IntentLedger evaluates AI-generated purchase proposals before payment.
         </p>
       </div>
@@ -119,23 +119,23 @@ export const SimulationPage: React.FC = () => {
       {/* Preset Scenarios Strip */}
       <div className="fintech-card p-4">
         <div className="flex items-center justify-between mb-2.5">
-          <span className="text-[11px] font-bold uppercase text-slate-600">
+          <span className="text-xs font-bold uppercase text-slate-700">
             Pre-Configured Agent Scenarios:
           </span>
-          <span className="text-[10px] text-slate-400 font-mono">Quick Evaluation Presets</span>
+          <span className="text-[11px] text-slate-500 font-mono font-medium">Quick Evaluation Presets</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
           {scenarios.map((sc) => (
             <button
               key={sc.id}
               onClick={() => handleApplyScenario(sc)}
-              className="text-left p-3 rounded-lg bg-surface-50 border border-surface-border hover:border-blue-300 text-xs transition-all group shadow-2xs"
+              className="text-left p-3.5 rounded-lg bg-slate-50 border border-slate-200 hover:border-blue-300 text-xs transition-all group shadow-2xs"
             >
-              <div className="font-bold text-slate-800 group-hover:text-blue-600 flex items-center justify-between">
+              <div className="font-bold text-slate-900 group-hover:text-blue-600 flex items-center justify-between">
                 <span>{sc.title}</span>
-                <span className="text-[10px] text-slate-500 font-mono">₹{sc.proposal.amount}</span>
+                <span className="text-xs text-slate-700 font-mono font-bold">₹{sc.proposal.amount}</span>
               </div>
-              <p className="text-[11px] text-slate-500 mt-1 line-clamp-1">
+              <p className="text-xs text-slate-600 mt-1 line-clamp-1 font-medium">
                 {sc.description}
               </p>
             </button>
@@ -147,25 +147,25 @@ export const SimulationPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Transaction Proposal Form (6 cols) */}
         <div className="lg:col-span-6 fintech-card p-6 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-surface-border">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-200">
             <div className="flex items-center gap-2">
               <Bot className="w-4 h-4 text-blue-600" />
-              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                 Candidate Proposal Input
               </h3>
             </div>
-            <span className="text-[10px] font-mono text-slate-400">Autonomous Agent Payload</span>
+            <span className="text-[11px] font-mono text-slate-500 font-semibold">Autonomous Agent Payload</span>
           </div>
 
           {/* Bound Intent Selector */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-bold text-slate-800 mb-1">
               Active User Intent Boundary
             </label>
             <select
               value={selectedIntentId}
               onChange={(e) => setSelectedIntentId(e.target.value)}
-              className="w-full rounded-lg bg-surface-50 border border-surface-border p-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs"
+              className="w-full rounded-lg bg-slate-50 border border-slate-300 p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs"
             >
               {intents.map((intent) => (
                 <option key={intent.id} value={intent.id}>
@@ -178,26 +178,26 @@ export const SimulationPage: React.FC = () => {
           {/* Product & Merchant */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-800 mb-1">
                 Item / Product Name
               </label>
               <input
                 type="text"
                 value={proposalProduct}
                 onChange={(e) => setProposalProduct(e.target.value)}
-                className="w-full rounded-lg bg-surface-50 border border-surface-border p-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs"
+                className="w-full rounded-lg bg-white border border-slate-300 p-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs font-medium"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-800 mb-1">
                 Merchant / Store
               </label>
               <input
                 type="text"
                 value={proposalMerchant}
                 onChange={(e) => setProposalMerchant(e.target.value)}
-                className="w-full rounded-lg bg-surface-50 border border-surface-border p-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs"
+                className="w-full rounded-lg bg-white border border-slate-300 p-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs font-medium"
               />
             </div>
           </div>
@@ -205,26 +205,26 @@ export const SimulationPage: React.FC = () => {
           {/* Amount & Currency */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-800 mb-1">
                 Proposed Amount (₹)
               </label>
               <input
                 type="number"
                 value={proposalAmount}
                 onChange={(e) => setProposalAmount(Number(e.target.value))}
-                className="w-full rounded-lg bg-surface-50 border border-surface-border p-2.5 text-xs font-bold text-slate-900 tabular-nums focus:outline-none focus:border-blue-500 shadow-2xs"
+                className="w-full rounded-lg bg-white border border-slate-300 p-2.5 text-xs font-extrabold text-slate-900 tabular-nums focus:outline-none focus:border-blue-500 shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-800 mb-1">
                 Currency
               </label>
               <input
                 type="text"
                 disabled
                 value={proposalCurrency}
-                className="w-full rounded-lg bg-slate-100 border border-surface-border p-2.5 text-xs text-slate-500 font-mono"
+                className="w-full rounded-lg bg-slate-100 border border-slate-300 p-2.5 text-xs text-slate-600 font-mono font-bold"
               />
             </div>
           </div>
@@ -232,7 +232,7 @@ export const SimulationPage: React.FC = () => {
           {/* Action & Subscription */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-bold text-slate-800 mb-1">
                 Action Type
               </label>
               <select
@@ -242,7 +242,7 @@ export const SimulationPage: React.FC = () => {
                   setProposalAction(val);
                   setIsSubscription(val === "subscribe");
                 }}
-                className="w-full rounded-lg bg-surface-50 border border-surface-border p-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs"
+                className="w-full rounded-lg bg-white border border-slate-300 p-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 shadow-2xs font-semibold"
               >
                 <option value="purchase">One-Time Purchase</option>
                 <option value="subscribe">Recurring Subscription</option>
@@ -250,7 +250,7 @@ export const SimulationPage: React.FC = () => {
             </div>
 
             <div className="flex items-center pt-6">
-              <label className="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-700 font-medium">
+              <label className="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-800 font-bold">
                 <input
                   type="checkbox"
                   checked={isSubscription}
@@ -263,9 +263,9 @@ export const SimulationPage: React.FC = () => {
           </div>
 
           {/* Action Button */}
-          <div className="pt-4 border-t border-surface-border">
+          <div className="pt-4 border-t border-slate-200">
             {errorMsg && (
-              <div className="p-2.5 mb-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+              <div className="p-2.5 mb-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
                 {errorMsg}
               </div>
             )}
@@ -274,7 +274,7 @@ export const SimulationPage: React.FC = () => {
               disabled={evaluating}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
             >
-              <Zap className={`w-3.5 h-3.5 ${evaluating ? "animate-spin" : ""}`} />
+              <Zap className={`w-4 h-4 ${evaluating ? "animate-spin" : ""}`} />
               <span>{evaluating ? "Evaluating Policy..." : "Evaluate Transaction"}</span>
             </button>
           </div>
@@ -283,17 +283,17 @@ export const SimulationPage: React.FC = () => {
         {/* Right: Decision Verdict Panel (6 cols) */}
         <div className="lg:col-span-6 fintech-card p-6 flex flex-col justify-between space-y-4">
           <div>
-            <div className="flex items-center justify-between pb-3 border-b border-surface-border">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
                 Deterministic Decision Verdict
               </span>
-              <span className="text-[10px] font-mono text-slate-400">
+              <span className="text-[11px] font-mono text-slate-500 font-semibold">
                 Intent Decision Engine
               </span>
             </div>
 
             {!decisionResult ? (
-              <div className="py-24 text-center text-slate-400 text-xs">
+              <div className="py-24 text-center text-slate-500 text-xs font-medium">
                 Submit candidate proposal to run mathematical policy checks.
               </div>
             ) : (
@@ -309,7 +309,7 @@ export const SimulationPage: React.FC = () => {
                   }`}
                 >
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
                       Policy Verdict
                     </div>
                     <div className="mt-1">
@@ -318,11 +318,11 @@ export const SimulationPage: React.FC = () => {
                   </div>
 
                   <div className="text-right">
-                    <div className="text-[10px] font-bold uppercase text-slate-500">
+                    <div className="text-[10px] font-bold uppercase text-slate-600">
                       Risk Score
                     </div>
                     <div
-                      className={`text-2xl font-extrabold tabular-nums mt-0.5 ${
+                      className={`text-3xl font-extrabold tabular-nums mt-0.5 ${
                         decisionResult.riskScore > 50
                           ? "text-rose-600"
                           : decisionResult.riskScore > 20
@@ -337,22 +337,22 @@ export const SimulationPage: React.FC = () => {
 
                 {/* Metric Strip */}
                 <div className="grid grid-cols-3 gap-2.5 text-xs">
-                  <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                     <span className="text-[10px] font-bold text-slate-500 uppercase block">Proposed</span>
-                    <span className="font-extrabold text-slate-900 tabular-nums">
+                    <span className="font-extrabold text-slate-900 tabular-nums text-sm">
                       ₹{proposalAmount?.toLocaleString()}
                     </span>
                   </div>
-                  <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                     <span className="text-[10px] font-bold text-slate-500 uppercase block">Budget Cap</span>
-                    <span className="font-extrabold text-slate-900 tabular-nums">
+                    <span className="font-extrabold text-slate-900 tabular-nums text-sm">
                       ₹{selectedIntent?.constraints.maxAmount?.toLocaleString()}
                     </span>
                   </div>
-                  <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+                  <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                     <span className="text-[10px] font-bold text-slate-500 uppercase block">Drift Severity</span>
                     <span
-                      className={`font-extrabold tabular-nums ${
+                      className={`font-extrabold tabular-nums text-sm ${
                         decisionResult.driftReport?.hasDrift ? "text-rose-600" : "text-emerald-700"
                       }`}
                     >
@@ -365,30 +365,30 @@ export const SimulationPage: React.FC = () => {
 
                 {/* Granular Policy Checks Breakdown */}
                 <div className="space-y-2">
-                  <span className="text-[11px] font-bold uppercase text-slate-600 block">
+                  <span className="text-xs font-bold uppercase text-slate-800 block">
                     Enforced Rule Verifications:
                   </span>
                   <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                     {decisionResult.checks.map((chk) => (
                       <div
                         key={chk.id}
-                        className="p-2.5 rounded-lg bg-surface-50 border border-surface-border flex items-start justify-between gap-2 text-xs"
+                        className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-start justify-between gap-2 text-xs"
                       >
                         <div className="flex items-start gap-2">
                           {chk.status === "PASS" ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                           ) : chk.status === "WARN" ? (
-                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                           ) : (
-                            <ShieldAlert className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                            <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                           )}
                           <div>
-                            <span className="font-semibold text-slate-800 block">{chk.name}</span>
-                            <span className="text-[11px] text-slate-500 font-normal">{chk.message}</span>
+                            <span className="font-bold text-slate-900 block">{chk.name}</span>
+                            <span className="text-xs text-slate-700 font-medium">{chk.message}</span>
                           </div>
                         </div>
                         <span
-                          className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded shrink-0 ${
+                          className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded shrink-0 ${
                             chk.status === "PASS"
                               ? "status-pill-emerald"
                               : chk.status === "WARN"
@@ -408,8 +408,8 @@ export const SimulationPage: React.FC = () => {
 
           {/* Quick Route Link */}
           {decisionResult && (
-            <div className="pt-3 border-t border-surface-border flex items-center justify-between text-xs">
-              <span className="text-slate-500">Proceed to next workflow stage:</span>
+            <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-xs">
+              <span className="text-slate-600 font-medium">Proceed to next workflow stage:</span>
               <Link
                 to={decisionResult.decision === "ASK_APPROVAL" ? "/approvals" : "/payment"}
                 className="text-blue-600 font-bold hover:underline flex items-center gap-1"
@@ -419,7 +419,7 @@ export const SimulationPage: React.FC = () => {
                     ? "Open Approval Center"
                     : "Proceed to Payment Gate"}
                 </span>
-                <ArrowRight className="w-3 h-3" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           )}

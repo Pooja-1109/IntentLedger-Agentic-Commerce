@@ -209,38 +209,38 @@ export const DemoPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-fadeIn max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-surface-border">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-300 font-bold">
               Interactive Judge Evaluation
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
             Judge Demo Tour
           </h1>
-          <p className="text-xs md:text-sm text-slate-600 mt-1">
+          <p className="text-sm text-slate-600 mt-1 font-normal">
             Step-by-step interactive demonstration of IntentLedger's intent compilation, deterministic governance, and cryptographic authorization.
           </p>
         </div>
 
         <button
           onClick={() => setShowJudgeScript(!showJudgeScript)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-surface-border hover:border-surface-borderHover text-slate-700 text-xs font-semibold self-start md:self-auto shadow-2xs"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-slate-300 hover:border-slate-400 text-slate-800 text-xs font-bold self-start md:self-auto shadow-2xs"
         >
-          <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
+          <HelpCircle className="w-4 h-4 text-blue-600" />
           <span>{showJudgeScript ? "Hide Judge Notes" : "Show 30s Pitch Script"}</span>
         </button>
       </div>
 
       {/* 30-Second Judge Pitch Card */}
       {showJudgeScript && (
-        <div className="fintech-card p-5 space-y-2 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-blue-200">
-          <div className="text-xs font-bold uppercase text-blue-800 flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-blue-600" />
+        <div className="fintech-card p-5 space-y-2 bg-blue-50/60 border-blue-300 shadow-xs">
+          <div className="text-xs font-bold uppercase text-blue-900 flex items-center gap-1.5">
+            <Zap className="w-4 h-4 text-blue-600" />
             <span>30-Second Elevator Pitch:</span>
           </div>
-          <p className="text-xs text-slate-700 leading-relaxed">
+          <p className="text-xs text-slate-800 leading-relaxed font-medium">
             "Autonomous AI shopping agents can select and propose actions, but they have zero direct payment authority. IntentLedger translates natural-language user intent into enforceable mathematical policy, detects intent drift, binds cryptographic approval tokens, and enforces pre-payment authorization before funds move."
           </p>
         </div>
@@ -257,14 +257,14 @@ export const DemoPage: React.FC = () => {
           <button
             key={s.key}
             onClick={() => handleSelectScenario(s.key as DemoScenarioKey)}
-            className={`p-3 rounded-lg border text-left text-xs transition-all ${
+            className={`p-3.5 rounded-lg border text-left text-xs transition-all ${
               activeScenario === s.key
-                ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                : "bg-white text-slate-600 hover:text-slate-900 border-surface-border shadow-2xs"
+                ? "bg-blue-600 text-white border-blue-600 shadow-sm font-bold"
+                : "bg-white text-slate-800 hover:text-slate-900 border-slate-300 shadow-2xs font-semibold"
             }`}
           >
-            <div className="font-bold text-[11px]">{s.title}</div>
-            <div className="text-[10px] opacity-80 font-mono mt-0.5">{s.tag}</div>
+            <div className="font-extrabold text-xs">{s.title}</div>
+            <div className="text-[11px] opacity-90 font-mono mt-0.5">{s.tag}</div>
           </button>
         ))}
       </div>
@@ -275,16 +275,16 @@ export const DemoPage: React.FC = () => {
           {steps.map((st) => (
             <div
               key={st.num}
-              className={`p-2 rounded-lg transition-all ${
+              className={`p-2.5 rounded-lg transition-all ${
                 st.num === currentStage
                   ? "bg-blue-600 text-white font-bold shadow-sm"
                   : st.num < currentStage
-                  ? "bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200"
-                  : "bg-slate-50 text-slate-400 font-normal"
+                  ? "bg-emerald-50 text-emerald-900 font-bold border border-emerald-300"
+                  : "bg-slate-100 text-slate-500 font-medium"
               }`}
             >
-              <div className="text-[9px] font-mono opacity-80">STEP {st.num}</div>
-              <div className="text-[11px] truncate mt-0.5">{st.label}</div>
+              <div className="text-[10px] font-mono opacity-90 font-bold">STEP {st.num}</div>
+              <div className="text-xs truncate mt-0.5 font-bold">{st.label}</div>
             </div>
           ))}
         </div>
@@ -294,38 +294,38 @@ export const DemoPage: React.FC = () => {
       <div className="fintech-card p-6 md:p-8 space-y-6">
         {/* Stage 1 & 2: Define Intent & Candidate Proposal */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-surface-border">
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+            <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">
               {currentStage <= 2 ? "1. Bound User Intent & Agent Proposal" : "Active Transaction Context"}
             </h3>
-            <span className="text-[10px] font-mono text-slate-400">Live API Execution</span>
+            <span className="text-[11px] font-mono text-slate-500 font-bold">Live API Execution</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div className="p-4 rounded-lg bg-surface-50 border border-surface-border space-y-2">
-              <span className="text-[10px] font-bold text-slate-500 uppercase block">Bound User Intent:</span>
-              <p className="font-semibold text-slate-900 italic">
+            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+              <span className="text-[11px] font-bold text-slate-500 uppercase block">Bound User Intent:</span>
+              <p className="font-bold text-slate-900 italic text-sm">
                 "{activeIntent?.rawText || 'Buy running shoes under ₹4,000 and ask me before purchasing.'}"
               </p>
               <div className="flex items-center gap-2 pt-1">
-                <span className="px-2 py-0.5 rounded bg-white border border-surface-border font-bold text-slate-700 shadow-2xs">
+                <span className="px-2.5 py-1 rounded bg-white border border-slate-300 font-bold text-slate-800 shadow-2xs">
                   Limit: ₹{activeIntent?.constraints.maxAmount?.toLocaleString()}
                 </span>
-                <span className="px-2 py-0.5 rounded bg-white border border-surface-border font-bold text-slate-700 shadow-2xs">
+                <span className="px-2.5 py-1 rounded bg-white border border-slate-300 font-bold text-slate-800 shadow-2xs">
                   {activeIntent?.constraints.requiresApproval ? "Approval Mandated" : "Auto-Allow"}
                 </span>
               </div>
             </div>
 
-            <div className="p-4 rounded-lg bg-surface-50 border border-surface-border space-y-2">
-              <span className="text-[10px] font-bold text-slate-500 uppercase block">Autonomous Agent Proposal:</span>
-              <div className="font-bold text-slate-900 text-sm">
+            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+              <span className="text-[11px] font-bold text-slate-500 uppercase block">Autonomous Agent Proposal:</span>
+              <div className="font-extrabold text-slate-900 text-base">
                 {product}
               </div>
-              <div className="flex items-center justify-between text-slate-600">
+              <div className="flex items-center justify-between text-slate-700 font-medium">
                 <span>Merchant: <strong className="text-slate-900">{merchant}</strong></span>
-                <span className="text-base font-extrabold text-slate-900 tabular-nums">
-                  ₹{amount.toLocaleString()} INR
+                <span className="text-lg font-extrabold text-slate-900 tabular-nums">
+                  ₹{amount.toLocaleString()} <span className="text-xs font-mono text-slate-500 font-normal">INR</span>
                 </span>
               </div>
             </div>
@@ -338,7 +338,7 @@ export const DemoPage: React.FC = () => {
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
               >
-                <Zap className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+                <Zap className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
                 <span>Evaluate Agent Proposal against Policy Gate</span>
               </button>
             </div>
@@ -347,26 +347,26 @@ export const DemoPage: React.FC = () => {
 
         {/* Stage 3: Decision Engine Verdict */}
         {decisionResult && currentStage >= 3 && (
-          <div className="space-y-4 pt-4 border-t border-surface-border">
+          <div className="space-y-4 pt-4 border-t border-slate-200">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+              <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">
                 2. Decision Engine Policy Check
               </h3>
               <DecisionBadge decision={decisionResult.decision} size="md" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
                 <span className="text-[10px] font-bold text-slate-500 uppercase block">Verdict</span>
-                <span className="font-extrabold text-slate-900 block mt-0.5">{decisionResult.decision}</span>
+                <span className="font-extrabold text-slate-900 block mt-0.5 text-sm">{decisionResult.decision}</span>
               </div>
-              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
                 <span className="text-[10px] font-bold text-slate-500 uppercase block">Risk Score</span>
-                <span className="font-extrabold text-slate-900 block mt-0.5">{decisionResult.riskScore}/100</span>
+                <span className="font-extrabold text-slate-900 block mt-0.5 text-sm">{decisionResult.riskScore}/100</span>
               </div>
-              <div className="p-3 rounded-lg bg-surface-50 border border-surface-border">
+              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
                 <span className="text-[10px] font-bold text-slate-500 uppercase block">Drift Status</span>
-                <span className={`font-extrabold block mt-0.5 ${decisionResult.driftReport?.hasDrift ? "text-rose-600" : "text-emerald-700"}`}>
+                <span className={`font-extrabold block mt-0.5 text-sm ${decisionResult.driftReport?.hasDrift ? "text-rose-600" : "text-emerald-700"}`}>
                   {decisionResult.driftReport?.hasDrift ? decisionResult.driftReport.severity : "Zero Drift"}
                 </span>
               </div>
@@ -374,8 +374,8 @@ export const DemoPage: React.FC = () => {
 
             {/* Stage 4: Approval Action */}
             {decisionResult.decision === "ASK_APPROVAL" && currentStage === 3 && (
-              <div className="p-4 rounded-xl bg-amber-50 border border-amber-300 space-y-3">
-                <div className="text-xs text-amber-900 font-semibold">
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-300 space-y-3 shadow-2xs">
+                <div className="text-xs text-amber-900 font-bold">
                   Human approval is mandated before payment can be authorized.
                 </div>
                 <button
@@ -383,7 +383,7 @@ export const DemoPage: React.FC = () => {
                   disabled={loading}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm"
                 >
-                  <CheckSquare className="w-3.5 h-3.5" />
+                  <CheckSquare className="w-4 h-4" />
                   <span>Grant Human Approval (Generate Cryptographic Token)</span>
                 </button>
               </div>
@@ -391,8 +391,8 @@ export const DemoPage: React.FC = () => {
 
             {/* Stage 5: Payment Gate Authorization */}
             {currentStage === 5 && (
-              <div className="p-4 rounded-xl bg-surface-50 border border-surface-border space-y-3">
-                <div className="text-xs text-slate-800 font-semibold flex items-center gap-2">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 shadow-2xs">
+                <div className="text-xs text-slate-900 font-bold flex items-center gap-2">
                   <Lock className="w-4 h-4 text-emerald-600" />
                   <span>
                     {activeScenario === "tampering"
@@ -409,7 +409,7 @@ export const DemoPage: React.FC = () => {
                       : "bg-blue-600 hover:bg-blue-700"
                   }`}
                 >
-                  <CreditCard className="w-3.5 h-3.5" />
+                  <CreditCard className="w-4 h-4" />
                   <span>
                     {activeScenario === "tampering"
                       ? "Attempt Tampered Payment Authorization (₹7,999)"
@@ -421,13 +421,13 @@ export const DemoPage: React.FC = () => {
 
             {/* Security Error / Context Mismatch Notice */}
             {securityError && (
-              <div className="p-4 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 text-xs space-y-1">
-                <div className="font-bold flex items-center gap-2 text-rose-800">
-                  <ShieldAlert className="w-4 h-4 text-rose-600" />
+              <div className="p-4 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 text-xs space-y-1.5 shadow-2xs">
+                <div className="font-bold flex items-center gap-2 text-rose-800 text-sm">
+                  <ShieldAlert className="w-5 h-5 text-rose-600" />
                   <span>PAYMENT PERMANENTLY BLOCKED</span>
                 </div>
-                <div className="font-mono text-[11px] text-rose-700 font-semibold">{securityError}</div>
-                <p className="text-[11px] text-slate-600 pt-1">
+                <div className="font-mono text-xs text-rose-700 font-bold">{securityError}</div>
+                <p className="text-xs text-slate-700 pt-1 font-medium">
                   The Payment Gate cryptographically verified that the submission did not match the approved proposal snapshot. Zero money moved.
                 </p>
               </div>
@@ -435,7 +435,7 @@ export const DemoPage: React.FC = () => {
 
             {/* Stage 6: Settlement Action */}
             {authorizedPayment && currentStage === 6 && (
-              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 space-y-3">
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 space-y-3 shadow-2xs">
                 <div className="text-xs text-emerald-900 font-bold">
                   Payment Pre-Authorized! Auth ID: {authorizedPayment.id}
                 </div>
@@ -444,7 +444,7 @@ export const DemoPage: React.FC = () => {
                   disabled={loading}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm"
                 >
-                  <CreditCard className="w-3.5 h-3.5" />
+                  <CreditCard className="w-4 h-4" />
                   <span>Complete Settlement ({isRazorpayTestMode ? "Razorpay Test Rail" : "Simulated Sandbox"})</span>
                 </button>
               </div>
@@ -452,30 +452,30 @@ export const DemoPage: React.FC = () => {
 
             {/* Stage 7: Ledger Proof */}
             {completedPayment && currentStage === 7 && (
-              <div className="p-5 rounded-xl bg-surface-50 border border-emerald-300 text-xs space-y-3">
+              <div className="p-5 rounded-xl bg-slate-50 border border-emerald-300 text-xs space-y-3 shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-emerald-800 uppercase">
+                  <span className="font-bold text-emerald-900 uppercase text-sm">
                     ✓ Full Transaction Lifecycle Completed
                   </span>
-                  <span className="font-mono text-slate-500 font-semibold">Tx: {completedPayment.gatewayTransactionId}</span>
+                  <span className="font-mono text-slate-600 font-bold">Tx: {completedPayment.gatewayTransactionId}</span>
                 </div>
-                <p className="text-slate-600">
+                <p className="text-slate-700 font-medium">
                   All decisions, cryptographic tokens, and settlements have been recorded into the append-only ledger.
                 </p>
                 <div className="flex items-center gap-3 pt-2">
                   <Link
                     to="/ledger"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white hover:bg-slate-50 border border-surface-border text-slate-700 text-xs font-bold shadow-2xs"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-bold shadow-2xs"
                   >
                     <span>Inspect Ledger</span>
-                    <ArrowRight className="w-3 h-3" />
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                   <Link
                     to="/replay"
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm"
                   >
                     <span>Forensic Replay</span>
-                    <RotateCcw className="w-3 h-3" />
+                    <RotateCcw className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>
