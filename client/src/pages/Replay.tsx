@@ -25,25 +25,6 @@ export const IntentReplayPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const playTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    const loadIntents = async () => {
-      setLoading(true);
-      try {
-        const data = await apiService.getIntents();
-        setIntents(data);
-        if (data.length > 0) {
-          setSelectedIntentId(data[0].id);
-        }
-      } catch (err) {
-        console.error("Failed to load intents:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadIntents();
-  }, []);
-
   const fetchEventsForIntent = useCallback(async (intentId: string) => {
     if (!intentId) return;
     setLoading(true);
@@ -58,6 +39,28 @@ export const IntentReplayPage: React.FC = () => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    const loadIntents = async () => {
+      setLoading(true);
+      try {
+        const data = await apiService.getIntents();
+        setIntents(data);
+        if (data.length > 0) {
+          const stored = localStorage.getItem("activeIntentId");
+          const activeId = stored && data.some((d) => d.id === stored) ? stored : data[0].id;
+          setSelectedIntentId(activeId);
+          fetchEventsForIntent(activeId);
+        }
+      } catch (err) {
+        console.error("Failed to load intents:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadIntents();
+  }, [fetchEventsForIntent]);
 
   useEffect(() => {
     if (selectedIntentId) {

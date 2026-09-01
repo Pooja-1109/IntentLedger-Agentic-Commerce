@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { ApiResponse, LedgerEvent } from "../types";
 import { intentRepository, inMemoryIntentRepository } from "../repositories/intent.repository";
-import { decisionRepository } from "../repositories/decision.repository";
-import { approvalRepository } from "../repositories/approval.repository";
-import { paymentRepository } from "../repositories/payment.repository";
+import { decisionRepository, inMemoryDecisionRepository } from "../repositories/decision.repository";
+import { approvalRepository, inMemoryApprovalRepository } from "../repositories/approval.repository";
+import { paymentRepository, inMemoryPaymentRepository } from "../repositories/payment.repository";
 import { ledgerRepository, inMemoryLedgerRepository } from "../repositories/ledger.repository";
 
 export interface DashboardSummaryData {
@@ -81,8 +81,11 @@ export const resetDemoHandler = async (
   _req: Request,
   res: Response<ApiResponse<{ message: string }>>
 ): Promise<void> => {
-  // Re-seed initial demo intents and seed ledger entries cleanly
+  // Re-seed initial demo intents, clear approvals, decisions, payments, and seed ledger cleanly
   inMemoryIntentRepository.seedInitialData();
+  inMemoryApprovalRepository.clear();
+  inMemoryDecisionRepository.clear();
+  inMemoryPaymentRepository.clear();
   inMemoryLedgerRepository.seedInitialEvents();
 
   res.status(200).json({

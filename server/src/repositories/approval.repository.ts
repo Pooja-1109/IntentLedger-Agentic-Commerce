@@ -58,6 +58,10 @@ class InMemoryApprovalRepository implements IApprovalRepository {
     const pending = all.filter((a) => a.status === "PENDING").length;
     return { total: all.length, pending };
   }
+
+  clear(): void {
+    this.approvals.clear();
+  }
 }
 
 export const inMemoryApprovalRepository = new InMemoryApprovalRepository();

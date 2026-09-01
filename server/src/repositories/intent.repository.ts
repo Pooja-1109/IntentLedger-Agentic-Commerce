@@ -18,6 +18,7 @@ class InMemoryIntentRepository implements IIntentRepository {
   }
 
   seedInitialData(): void {
+    this.intents.clear();
     const initialIntents: Intent[] = [
       {
         id: "intent_demo_running_shoes",

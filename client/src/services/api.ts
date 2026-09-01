@@ -68,6 +68,9 @@ export interface CompiledIntentResponse {
     category: string;
     approval: string;
     permissions: string;
+    productName?: string;
+    quantity?: number;
+    merchant?: string;
     prohibitions?: string;
   };
   warnings?: string[];

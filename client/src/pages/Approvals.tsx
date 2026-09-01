@@ -217,7 +217,14 @@ export const ApprovalsPage: React.FC = () => {
               </div>
 
               {/* Middle Row: Snapshot & Policy Metadata */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Quantity</span>
+                  <span className="font-bold text-slate-900 block mt-0.5 tabular-nums">
+                    {req.proposalSnapshot.quantity || 1} units
+                  </span>
+                </div>
+
                 <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                   <span className="text-[10px] font-bold text-slate-500 uppercase block">Bound Intent ID</span>
                   <span className="font-mono text-slate-900 truncate block mt-0.5 font-bold">
@@ -228,7 +235,7 @@ export const ApprovalsPage: React.FC = () => {
                 <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
                   <span className="text-[10px] font-bold text-slate-500 uppercase block">Requested At</span>
                   <span className="font-mono text-slate-900 block mt-0.5 tabular-nums font-semibold">
-                    {new Date(req.createdAt).toLocaleString()}
+                    {new Date(req.createdAt).toLocaleTimeString()}
                   </span>
                 </div>
 
@@ -236,10 +243,10 @@ export const ApprovalsPage: React.FC = () => {
                   <span className="text-[10px] font-bold text-slate-500 uppercase block">Authorization TTL</span>
                   <span className="font-mono text-amber-800 font-bold block mt-0.5">
                     {req.status === "PENDING"
-                      ? "10-Minute Expiry Limit"
+                      ? "10-Min Limit"
                       : req.expiresAt
                       ? `Expires: ${new Date(req.expiresAt).toLocaleTimeString()}`
-                      : "Expired"}
+                      : "Active"}
                   </span>
                 </div>
               </div>

@@ -27,7 +27,9 @@ export const PaymentGatePage: React.FC = () => {
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([]);
   const [health, setHealth] = useState<HealthCheckData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedIntentId, setSelectedIntentId] = useState<string>(passedState?.intentId || "");
+  const [selectedIntentId, setSelectedIntentId] = useState<string>(
+    passedState?.intentId || localStorage.getItem("activeIntentId") || ""
+  );
   const [selectedApprovalId, setSelectedApprovalId] = useState<string>(passedState?.approvalId || "");
 
   // Workflow State
@@ -49,14 +51,24 @@ export const PaymentGatePage: React.FC = () => {
       setApprovals(approvalsData);
       setHealth(healthData);
 
+      const activeIntentKey = passedState?.intentId || localStorage.getItem("activeIntentId") || "";
+
       // Resolve initial selection priority:
       // 1. passedState approval/intent
-      // 2. latest approved approval
-      // 3. latest intent
+      // 2. approved request for active intent
+      // 3. latest approved approval overall
+      // 4. latest intent
       if (passedState?.approvalId) {
         setSelectedApprovalId(passedState.approvalId);
         if (passedState.intentId) {
           setSelectedIntentId(passedState.intentId);
+        }
+      } else if (activeIntentKey) {
+        setSelectedIntentId(activeIntentKey);
+        const matchAppr = approvalsData.find((a) => a.intentId === activeIntentKey && a.status === "APPROVED") ||
+          approvalsData.find((a) => a.intentId === activeIntentKey);
+        if (matchAppr) {
+          setSelectedApprovalId(matchAppr.id);
         }
       } else if (approvalsData.length > 0) {
         const latestApproved = approvalsData.find((a) => a.status === "APPROVED");
@@ -94,11 +106,15 @@ export const PaymentGatePage: React.FC = () => {
   const activeProposal: AgentProposal = matchingApproval?.proposalSnapshot || passedState?.proposal || {
     id: `prop_pay_${selectedIntent?.id || "dynamic"}`,
     intentId: selectedIntent?.id || "",
-    product: selectedIntent?.category === "shopping" ? "Engineering Laptop" : "Authorized Item",
-    merchant: selectedIntent?.constraints.allowedMerchants?.[0] || "Approved Vendor",
-    amount: selectedIntent?.constraints.maxAmount ? Math.min(35000, selectedIntent.constraints.maxAmount) : 35000,
+    product: selectedIntent?.rawText.toLowerCase().includes("notebook")
+      ? (selectedIntent?.constraints.quantity ? `Notebook Set (Pack of ${selectedIntent.constraints.quantity})` : "Notebook Set")
+      : (selectedIntent?.constraints.productCategory || "Authorized Item"),
+    merchant: selectedIntent?.constraints.allowedMerchants?.[0] || (selectedIntent?.rawText.toLowerCase().includes("store") ? "Approved Store" : "Approved Vendor"),
+    amount: selectedIntent?.constraints.maxAmount
+      ? (selectedIntent.constraints.maxAmount <= 1000 ? Math.round(selectedIntent.constraints.maxAmount * 0.85) : selectedIntent.constraints.maxAmount - 5000)
+      : 550,
     currency: selectedIntent?.constraints.currency || "INR",
-    quantity: 1,
+    quantity: selectedIntent?.constraints.quantity || 1,
     action: "purchase",
     proposedAt: new Date().toISOString(),
   };
@@ -306,7 +322,7 @@ export const PaymentGatePage: React.FC = () => {
             ₹{amount.toLocaleString()} <span className="text-sm font-mono text-slate-500 font-normal">{currency}</span>
           </div>
           <div className="text-sm text-slate-800 font-bold mt-1">
-            {product} • <span className="text-slate-600 font-medium">{merchant}</span>
+            {product} {quantity > 1 ? `(Qty: ${quantity})` : ""} • <span className="text-slate-600 font-medium">{merchant}</span>
           </div>
 
           {/* Bound Metadata Badges */}

@@ -52,6 +52,10 @@ class InMemoryPaymentRepository implements IPaymentRepository {
     const blocked = all.filter((p) => p.status === "BLOCKED").length;
     return { total: all.length, completed, blocked };
   }
+
+  clear(): void {
+    this.payments.clear();
+  }
 }
 
 export const inMemoryPaymentRepository = new InMemoryPaymentRepository();

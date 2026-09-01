@@ -37,6 +37,10 @@ class InMemoryDecisionRepository implements IDecisionRepository {
   async count(): Promise<number> {
     return this.decisions.size;
   }
+
+  clear(): void {
+    this.decisions.clear();
+  }
 }
 
 export const inMemoryDecisionRepository = new InMemoryDecisionRepository();

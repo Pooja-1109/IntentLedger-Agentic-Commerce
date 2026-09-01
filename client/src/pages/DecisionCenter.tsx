@@ -28,7 +28,8 @@ export const DecisionCenterPage: React.FC = () => {
         setIntents(intentsData);
 
         if (intentsData.length > 0) {
-          const initialIntentId = intentsData[0].id;
+          const stored = localStorage.getItem("activeIntentId");
+          const initialIntentId = stored && intentsData.some((d) => d.id === stored) ? stored : intentsData[0].id;
           setSelectedIntentId(initialIntentId);
           const decs = await apiService.getDecisionsByIntentId(initialIntentId);
           setDecisions(decs);
