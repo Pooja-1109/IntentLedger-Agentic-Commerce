@@ -146,6 +146,12 @@ export const ApprovalsPage: React.FC = () => {
           </div>
           <Link
             to="/payment"
+            state={{
+              approvalId: actionSuccessMsg.id,
+              approvalToken: actionSuccessMsg.token,
+              intentId: approvals.find((a) => a.id === actionSuccessMsg.id)?.intentId,
+              proposal: approvals.find((a) => a.id === actionSuccessMsg.id)?.proposalSnapshot,
+            }}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold shrink-0 self-start sm:self-auto shadow-sm"
           >
             <span>Proceed to Payment Gate</span>
@@ -273,6 +279,24 @@ export const ApprovalsPage: React.FC = () => {
                     <CheckSquare className="w-4 h-4" />
                     <span>{actionLoadingId === req.id ? "Authorizing..." : "Approve Request"}</span>
                   </button>
+                </div>
+              )}
+
+              {req.status === "APPROVED" && (
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <Link
+                    to="/payment"
+                    state={{
+                      approvalId: req.id,
+                      approvalToken: req.approvalToken,
+                      intentId: req.intentId,
+                      proposal: req.proposalSnapshot,
+                    }}
+                    className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+                  >
+                    <span>Proceed to Payment Gate</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               )}
             </div>

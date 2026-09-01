@@ -412,6 +412,18 @@ export const SimulationPage: React.FC = () => {
               <span className="text-slate-600 font-medium">Proceed to next workflow stage:</span>
               <Link
                 to={decisionResult.decision === "ASK_APPROVAL" ? "/approvals" : "/payment"}
+                state={{
+                  intentId: selectedIntent.id,
+                  approvalId: decisionResult.approvalId,
+                  proposal: {
+                    product: proposalProduct,
+                    merchant: proposalMerchant,
+                    amount: Number(proposalAmount),
+                    currency: proposalCurrency,
+                    quantity: Number(proposalQuantity),
+                    action: proposalAction,
+                  },
+                }}
                 className="text-blue-600 font-bold hover:underline flex items-center gap-1"
               >
                 <span>
