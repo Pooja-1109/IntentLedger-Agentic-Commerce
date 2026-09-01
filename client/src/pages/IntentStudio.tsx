@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Sparkles,
   RefreshCw,
   Layers,
   Plus,
+  ArrowRight,
+  Bot,
 } from "lucide-react";
 import { StatusPill } from "../components/StatusBadge";
 import { apiService, CompiledIntentResponse } from "../services/api";
@@ -17,6 +20,7 @@ export const IntentStudio: React.FC = () => {
   const [compiling, setCompiling] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
+  const [createdIntent, setCreatedIntent] = useState<Intent | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Editable constraint adjustments
@@ -99,6 +103,7 @@ export const IntentStudio: React.FC = () => {
         permissions: compiled.permissions,
       });
       setSaveSuccess(`Intent policy created successfully (ID: ${created.id})`);
+      setCreatedIntent(created);
       fetchIntents();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to persist intent policy");
@@ -110,6 +115,7 @@ export const IntentStudio: React.FC = () => {
   const handleClear = () => {
     setRawText("");
     setCompiled(null);
+    setCreatedIntent(null);
     setErrorMsg(null);
     setSaveSuccess(null);
   };
@@ -300,8 +306,33 @@ export const IntentStudio: React.FC = () => {
               </div>
             )}
             {saveSuccess && (
-              <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold">
+              <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-semibold">
                 {saveSuccess}
+              </div>
+            )}
+
+            {createdIntent && (
+              <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-blue-950 text-xs space-y-2.5 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <div className="font-bold flex items-center gap-1.5 text-blue-900">
+                    <Bot className="w-4 h-4 text-blue-700" />
+                    <span>Ready for Agent Simulation</span>
+                  </div>
+                  <span className="font-mono text-[11px] font-bold text-blue-800 bg-white px-2 py-0.5 rounded border border-blue-200">
+                    {createdIntent.id}
+                  </span>
+                </div>
+                <p className="text-slate-700 leading-relaxed font-medium">
+                  Run autonomous candidate proposals against this policy without manual data entry.
+                </p>
+                <Link
+                  to="/simulation"
+                  state={{ intentId: createdIntent.id, intent: createdIntent }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-sm active:scale-95"
+                >
+                  <span>Simulate Agent Proposal</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
             )}
 
@@ -354,6 +385,7 @@ export const IntentStudio: React.FC = () => {
                   <th className="py-3 px-4">Budget Cap</th>
                   <th className="py-3 px-4">Approval Mandate</th>
                   <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -365,7 +397,7 @@ export const IntentStudio: React.FC = () => {
                     <td className="py-3.5 px-4 font-extrabold text-slate-900 uppercase text-xs">
                       {intent.category}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-800 font-medium italic max-w-sm truncate">
+                    <td className="py-3.5 px-4 text-slate-800 font-medium italic max-w-xs truncate">
                       "{intent.rawText}"
                     </td>
                     <td className="py-3.5 px-4 font-extrabold text-slate-900 tabular-nums text-sm">
@@ -384,6 +416,16 @@ export const IntentStudio: React.FC = () => {
                     </td>
                     <td className="py-3.5 px-4">
                       <StatusPill status={intent.status} />
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <Link
+                        to="/simulation"
+                        state={{ intentId: intent.id, intent }}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200 transition-all shadow-2xs hover:shadow-xs"
+                      >
+                        <span>Simulate</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
                     </td>
                   </tr>
                 ))}
