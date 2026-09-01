@@ -2,6 +2,8 @@
 
 **Razorpay Buildathon — Open Track Submission**
 
+**Repository:** [https://github.com/Pooja-1109/IntentLedger-Agentic-Commerce](https://github.com/Pooja-1109/IntentLedger-Agentic-Commerce)
+
 ---
 
 ## 30-Second Summary
@@ -16,9 +18,21 @@ IntentLedger solves a fundamental gap in AI commerce:
 
 ## Quick Setup & Start
 
-1. **Backend Server:** `cd server && npm run build && npm start` (Running on `http://localhost:5000`)
-2. **Frontend App:** `cd client && npm run dev` (Running on `http://localhost:5173`)
-3. **Open Live Demo:** [http://localhost:5173/demo](http://localhost:5173/demo)
+```bash
+# 1. Clone the repository
+git clone https://github.com/Pooja-1109/IntentLedger-Agentic-Commerce.git
+cd IntentLedger-Agentic-Commerce
+
+# 2. Install all dependencies
+npm run install:all
+
+# 3. Start full stack (Frontend + Backend concurrently)
+npm run dev
+```
+
+- **Frontend Dashboard:** [http://localhost:5173](http://localhost:5173)
+- **Backend API Engine:** [http://localhost:5000](http://localhost:5000)
+- **Direct Demo Link:** [http://localhost:5173/demo](http://localhost:5173/demo)
 
 ---
 
@@ -39,7 +53,13 @@ IntentLedger solves a fundamental gap in AI commerce:
 - Click **"Evaluate Intent Policy"** → Immediate **🚨 BLOCK** verdict.
 - **Key Insight:** Notice that **NO Razorpay order is created**.
 
-### Step 3: Hero Security Attack Demo (Scenario D)
+### Step 3: Subscription Prohibition (Scenario C)
+- Select **Scenario C: Subscription Trap**
+- Agent proposes recurring monthly VIP subscription at ₹499/mo against one-time purchase policy.
+- Click **"Evaluate Intent Policy"** → Immediate **🚨 BLOCK** verdict.
+- **Key Insight:** Prevents autonomous recurring membership enrollment.
+
+### Step 4: Hero Security Attack Demo (Scenario D)
 - Select **Scenario D: 🛡️ Context Tampering**
 - User approves ₹3,499.
 - Rogue agent attempts to submit a modified amount of ₹7,999 using the same approval token.
@@ -47,17 +67,17 @@ IntentLedger solves a fundamental gap in AI commerce:
   $$\text{HTTP 403 APPROVAL\_CONTEXT\_MISMATCH}$$
 - **Key Insight:** Demonstrates that human approval is bound to the exact item snapshot, preventing token reuse or rogue price inflation.
 
-### Step 4: Full Audit & Forensic Replay
+### Step 5: Full Audit & Forensic Replay
 - Navigate to **Audit Ledger** (`/ledger`) to see chronological cryptographic logs.
 - Navigate to **Intent Replay** (`/replay`) and press **"Play Lifecycle"** to watch the forensic reconstruction.
 
 ---
 
-## Test Suite Verification
+## Automated Test Suite Verification
 
 Run all automated unit and integration tests from the `server` directory:
 ```bash
 cd server
 npm test
 ```
-*Result: 49/49 passing tests.*
+*Result: 49/49 passing tests (Decision Engine, Workflow & Security, Compiler, Persistence, Razorpay).*

@@ -1,0 +1,257 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 780" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #FFFFFF; }
+      .title { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 700; font-size: 22px; fill: #0F172A; }
+      .subtitle { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 500; font-size: 13px; fill: #64748B; }
+      .card-title { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 700; font-size: 14px; fill: #0F172A; }
+      .card-desc { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 400; font-size: 11.5px; fill: #475569; }
+      .badge-text { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; font-size: 10.5px; }
+      .layer-label { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+      .code-text { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 11px; fill: #1E293B; }
+      .arrow { stroke: #64748B; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .arrow-accent { stroke: #2563EB; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .arrow-dashed { stroke: #94A3B8; stroke-width: 1.8; stroke-dasharray: 4 4; fill: none; }
+    </style>
+    
+    <filter id="shadow" x="-3%" y="-3%" width="106%" height="108%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+    <filter id="shadow-lg" x="-4%" y="-4%" width="108%" height="110%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0F172A" flood-opacity="0.09"/>
+    </filter>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748B"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563EB"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669"/>
+    </marker>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1200" height="780" class="bg" />
+  <rect x="16" y="16" width="1168" height="748" rx="16" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5" />
+
+  <!-- Header Section -->
+  <g transform="translate(48, 48)">
+    <rect x="0" y="0" width="40" height="40" rx="10" fill="#0F172A" />
+    <path d="M12 28 L20 12 L28 28 Z" fill="none" stroke="#38BDF8" stroke-width="2.5" stroke-linejoin="round" />
+    <circle cx="20" cy="22" r="3" fill="#38BDF8" />
+    
+    <text x="54" y="24" class="title">IntentLedger Architecture</text>
+    <text x="54" y="40" class="subtitle">Deterministic Governance &amp; Cryptographic Accountability Layer for AI/Agentic Commerce</text>
+  </g>
+
+  <!-- ==================== TIER 1: USER & AGENT INPUT ==================== -->
+  <g transform="translate(48, 110)">
+    <!-- Layer Box -->
+    <rect x="0" y="0" width="1104" height="115" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2" filter="url(#shadow)" />
+    <rect x="16" y="14" width="130" height="22" rx="6" fill="#F1F5F9" />
+    <text x="24" y="29" class="layer-label" fill="#475569">1. AGENTIC DISCOVERY</text>
+
+    <!-- Box 1.1: User Intent -->
+    <g transform="translate(16, 42)">
+      <rect x="0" y="0" width="340" height="60" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1" />
+      <circle cx="24" cy="24" r="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5" />
+      <text x="24" y="28" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#1D4ED8">👤</text>
+      <text x="46" y="24" class="card-title">User Natural-Language Intent</text>
+      <text x="46" y="42" class="code-text" fill="#2563EB">"Buy running shoes under ₹4,000 &amp; ask me"</text>
+    </g>
+
+    <!-- Box 1.2: AI Shopping Agent -->
+    <g transform="translate(400, 42)">
+      <rect x="0" y="0" width="330" height="60" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1" />
+      <circle cx="24" cy="24" r="12" fill="#FAF5FF" stroke="#A855F7" stroke-width="1.5" />
+      <text x="24" y="28" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#7E22CE">🤖</text>
+      <text x="46" y="24" class="card-title">AI Shopping Agent (Autonomous)</text>
+      <text x="46" y="42" class="card-desc">Finds item &amp; generates candidate proposal</text>
+    </g>
+
+    <!-- Box 1.3: Candidate Proposal -->
+    <g transform="translate(775, 42)">
+      <rect x="0" y="0" width="313" height="60" rx="8" fill="#FEF3C7" stroke="#FDE68A" stroke-width="1" />
+      <text x="16" y="24" class="card-title" fill="#92400E">📦 Candidate Proposal</text>
+      <text x="16" y="44" class="code-text" fill="#B45309">Item: Nike Pegasus • Price: ₹3,499</text>
+    </g>
+
+    <!-- Flow Arrows Tier 1 -->
+    <path d="M 356 72 L 398 72" class="arrow" marker-end="url(#arrow)" />
+    <path d="M 730 72 L 773 72" class="arrow" marker-end="url(#arrow)" />
+  </g>
+
+  <!-- Transition Arrow Tier 1 -> Tier 2 -->
+  <path d="M 600 225 L 600 252" class="arrow-accent" marker-end="url(#arrow-blue)" />
+
+  <!-- ==================== TIER 2: INTENTLEDGER CORE ENGINE ==================== -->
+  <g transform="translate(48, 255)">
+    <!-- Container Box -->
+    <rect x="0" y="0" width="1104" height="255" rx="14" fill="#FFFFFF" stroke="#3B82F6" stroke-width="1.8" filter="url(#shadow-lg)" />
+    
+    <!-- Top Bar inside container -->
+    <rect x="0" y="0" width="1104" height="38" rx="14" fill="#0F172A" />
+    <rect x="0" y="24" width="1104" height="14" fill="#0F172A" />
+    <text x="20" y="24" font-family="'Inter', sans-serif" font-weight="700" font-size="12" fill="#FFFFFF" letter-spacing="0.05em">
+      🛡️ INTENTLEDGER CORE — DETERMINISTIC GOVERNANCE &amp; ACCOUNTABILITY ENGINE
+    </text>
+    <rect x="940" y="8" width="148" height="22" rx="6" fill="#1E293B" stroke="#334155" />
+    <text x="1014" y="23" text-anchor="middle" font-family="'Inter', sans-serif" font-weight="600" font-size="10.5" fill="#38BDF8">USER INTENT ≠ AGENT AUTHORITY</text>
+
+    <!-- 2.1 Intent Compiler -->
+    <g transform="translate(20, 56)">
+      <rect x="0" y="0" width="245" height="180" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.2" />
+      <rect x="14" y="14" width="217" height="26" rx="6" fill="#EEF2FF" stroke="#C7D2FE" stroke-width="1" />
+      <text x="22" y="31" class="card-title" fill="#3730A3">🧠 1. Intent Compiler</text>
+      
+      <g transform="translate(14, 50)">
+        <rect x="0" y="0" width="217" height="42" rx="6" fill="#FFFFFF" stroke="#E2E8F0" />
+        <text x="10" y="18" font-family="'Inter', sans-serif" font-weight="600" font-size="11" fill="#1E293B">Google Gemini AI</text>
+        <text x="10" y="33" class="card-desc">Translates natural language to constraints</text>
+      </g>
+      
+      <g transform="translate(14, 100)">
+        <rect x="0" y="0" width="217" height="42" rx="6" fill="#F8FAFC" stroke="#E2E8F0" />
+        <text x="10" y="18" font-family="'Inter', sans-serif" font-weight="600" font-size="11" fill="#475569">Deterministic Rule Fallback</text>
+        <text x="10" y="33" class="card-desc">Zero-downtime offline parser resilience</text>
+      </g>
+
+      <text x="14" y="162" class="code-text" fill="#64748B">Output: Structured Policy Object</text>
+    </g>
+
+    <!-- Arrow 2.1 -> 2.2 -->
+    <path d="M 265 146 L 293 146" class="arrow" marker-end="url(#arrow)" />
+
+    <!-- 2.2 Structured Policy Definition -->
+    <g transform="translate(295, 56)">
+      <rect x="0" y="0" width="230" height="180" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.2" />
+      <rect x="14" y="14" width="202" height="26" rx="6" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1" />
+      <text x="22" y="31" class="card-title" fill="#1E40AF">📋 2. Typed Policy</text>
+      
+      <g transform="translate(14, 48)">
+        <rect x="0" y="0" width="202" height="118" rx="6" fill="#FFFFFF" stroke="#E2E8F0" />
+        <text x="12" y="22" class="code-text">• maxAmount: ₹4,000</text>
+        <text x="12" y="44" class="code-text">• category: "Shoes"</text>
+        <text x="12" y="66" class="code-text">• canSubscribe: false</text>
+        <text x="12" y="88" class="code-text">• requiresApproval: true</text>
+        <text x="12" y="108" class="code-text">• allowedMerchants: [...]</text>
+      </g>
+    </g>
+
+    <!-- Arrow 2.2 -> 2.3 -->
+    <path d="M 525 146 L 553 146" class="arrow" marker-end="url(#arrow)" />
+
+    <!-- 2.3 Deterministic Decision Engine -->
+    <g transform="translate(555, 56)">
+      <rect x="0" y="0" width="250" height="180" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.2" />
+      <rect x="14" y="14" width="222" height="26" rx="6" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1" />
+      <text x="22" y="31" class="card-title" fill="#166534">⚖️ 3. Decision Engine</text>
+
+      <g transform="translate(14, 48)">
+        <!-- ALLOW Verdict -->
+        <rect x="0" y="0" width="222" height="34" rx="6" fill="#ECFDF5" stroke="#A7F3D0" />
+        <text x="10" y="21" font-family="'Inter', sans-serif" font-weight="700" font-size="11" fill="#065F46">ALLOW</text>
+        <text x="70" y="21" class="card-desc">Within budget &amp; authorized</text>
+
+        <!-- ASK APPROVAL Verdict -->
+        <rect x="0" y="40" width="222" height="34" rx="6" fill="#EFF6FF" stroke="#BFDBFE" />
+        <text x="10" y="61" font-family="'Inter', sans-serif" font-weight="700" font-size="11" fill="#1E40AF">ASK_APPROVAL</text>
+        <text x="108" y="61" class="card-desc">Mandate triggered</text>
+
+        <!-- BLOCK Verdict -->
+        <rect x="0" y="80" width="222" height="38" rx="6" fill="#FEF2F2" stroke="#FECACA" />
+        <text x="10" y="102" font-family="'Inter', sans-serif" font-weight="700" font-size="11" fill="#991B1B">BLOCK</text>
+        <text x="60" y="102" class="card-desc">Drift / Subscription trap</text>
+      </g>
+    </g>
+
+    <!-- Arrow 2.3 -> 2.4 -->
+    <path d="M 805 146 L 833 146" class="arrow" marker-end="url(#arrow)" />
+
+    <!-- 2.4 Human Approval Center & Signing -->
+    <g transform="translate(835, 56)">
+      <rect x="0" y="0" width="245" height="180" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.2" />
+      <rect x="14" y="14" width="217" height="26" rx="6" fill="#FAF5FF" stroke="#E9D5FF" stroke-width="1" />
+      <text x="22" y="31" class="card-title" fill="#6B21A8">🔐 4. Approval Center</text>
+
+      <g transform="translate(14, 48)">
+        <rect x="0" y="0" width="217" height="52" rx="6" fill="#FFFFFF" stroke="#E2E8F0" />
+        <text x="10" y="18" font-family="'Inter', sans-serif" font-weight="600" font-size="11" fill="#1E293B">Cryptographic Snapshot Binding</text>
+        <text x="10" y="33" class="card-desc">Locks Product, Amount &amp; Merchant</text>
+        <text x="10" y="45" class="code-text" fill="#7E22CE">HMAC-SHA256 Token (10m TTL)</text>
+      </g>
+
+      <g transform="translate(14, 108)">
+        <rect x="0" y="0" width="217" height="58" rx="6" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="10" y="18" font-family="'Inter', sans-serif" font-weight="700" font-size="10.5" fill="#991B1B">🛡️ Anti-Tamper Protection</text>
+        <text x="10" y="34" class="card-desc">Stealth amount changes fail with</text>
+        <text x="10" y="48" class="code-text" fill="#B91C1C">403 CONTEXT_MISMATCH</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Transition Arrow Tier 2 -> Tier 3 -->
+  <path d="M 600 510 L 600 538" class="arrow-accent" marker-end="url(#arrow-blue)" />
+
+  <!-- ==================== TIER 3: EXECUTION & AUDIT ==================== -->
+  <g transform="translate(48, 540)">
+    <rect x="0" y="0" width="1104" height="185" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2" filter="url(#shadow)" />
+    <rect x="16" y="14" width="220" height="22" rx="6" fill="#F1F5F9" />
+    <text x="24" y="29" class="layer-label" fill="#475569">3. EXECUTION, AUDIT &amp; FORENSICS</text>
+
+    <!-- 3.1 Payment Gate -->
+    <g transform="translate(16, 44)">
+      <rect x="0" y="0" width="250" height="125" rx="8" fill="#F8FAFC" stroke="#E2E8F0" />
+      <text x="14" y="24" class="card-title" fill="#0F172A">🚪 Payment Gate</text>
+      <text x="14" y="42" class="card-desc">• Verifies 10m TTL Token</text>
+      <text x="14" y="58" class="card-desc">• Enforces Exact Context Integrity</text>
+      <text x="14" y="74" class="card-desc">• Converts to Minor Units (Paise)</text>
+      <rect x="14" y="88" width="222" height="24" rx="4" fill="#EFF6FF" />
+      <text x="22" y="104" class="code-text" fill="#1D4ED8">₹3,499 → 349900 paise</text>
+    </g>
+
+    <!-- Arrow 3.1 -> 3.2 -->
+    <path d="M 266 106 L 290 106" class="arrow" marker-end="url(#arrow)" />
+
+    <!-- 3.2 Razorpay Payment Rail -->
+    <g transform="translate(292, 44)">
+      <rect x="0" y="0" width="260" height="125" rx="8" fill="#F0F9FF" stroke="#BAE6FD" stroke-width="1.2" />
+      <text x="14" y="24" class="card-title" fill="#0369A1">⚡ Razorpay Rail (Test Mode)</text>
+      <text x="14" y="42" class="card-desc">• Orders API (order_xxx)</text>
+      <text x="14" y="58" class="card-desc">• HMAC SHA-256 Signature Verification</text>
+      <text x="14" y="74" class="card-desc">• Pluggable Provider Abstraction</text>
+      <rect x="14" y="88" width="232" height="24" rx="4" fill="#E0F2FE" />
+      <text x="22" y="104" class="code-text" fill="#0284C7">Simulated Sandbox &amp; Live Test Rail</text>
+    </g>
+
+    <!-- Arrow 3.2 -> 3.3 -->
+    <path d="M 552 106 L 576 106" class="arrow" marker-end="url(#arrow)" />
+
+    <!-- 3.3 Append-Only Decision Ledger -->
+    <g transform="translate(578, 44)">
+      <rect x="0" y="0" width="250" height="125" rx="8" fill="#F8FAFC" stroke="#E2E8F0" />
+      <text x="14" y="24" class="card-title" fill="#0F172A">📜 Append-Only Ledger</text>
+      <text x="14" y="42" class="card-desc">• Chronological Event Stream</text>
+      <text x="14" y="58" class="card-desc">• Immutable Decision Hash Chain</text>
+      <text x="14" y="74" class="card-desc">• Dual Persistence (Mongo / Memory)</text>
+      <rect x="14" y="88" width="222" height="24" rx="4" fill="#F1F5F9" />
+      <text x="22" y="104" class="code-text" fill="#475569">Zero update / delete mutations</text>
+    </g>
+
+    <!-- Arrow 3.3 -> 3.4 -->
+    <path d="M 828 106 L 852 106" class="arrow" marker-end="url(#arrow)" />
+
+    <!-- 3.4 Forensic Replay & Security Engine -->
+    <g transform="translate(854, 44)">
+      <rect x="0" y="0" width="234" height="125" rx="8" fill="#F8FAFC" stroke="#E2E8F0" />
+      <text x="14" y="24" class="card-title" fill="#0F172A">🔍 Replay &amp; Security</text>
+      <text x="14" y="42" class="card-desc">• Forensic Step-by-Step Replay</text>
+      <text x="14" y="58" class="card-desc">• SHA-256 Integrity Verification</text>
+      <text x="14" y="74" class="card-desc">• Real-Time Security Metrics</text>
+      <rect x="14" y="88" width="206" height="24" rx="4" fill="#ECFDF5" />
+      <text x="20" y="104" class="code-text" fill="#047857">100% Cryptographic Proof</text>
+    </g>
+  </g>
+</svg>
