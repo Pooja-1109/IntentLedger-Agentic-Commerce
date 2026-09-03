@@ -4,7 +4,7 @@
 
 > **"AI agents can act. IntentLedger ensures they act only within the authority the user actually granted."**
 
-[![Tests](https://img.shields.io/badge/tests-49%2F49%20passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-64%2F64%20passing-brightgreen.svg)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)]()
 [![Razorpay](https://img.shields.io/badge/Razorpay-Test%20Mode-blue.svg)]()
 [![AI](https://img.shields.io/badge/AI-Gemini%203.6%20Flash-purple.svg)]()
@@ -141,7 +141,17 @@ IntentLedger Policy Enforcement → Approval Minting → Payment Gate → Razorp
 
 ---
 
-## 4 Benchmark Demo Scenarios
+## Benchmark Scenarios vs. Dynamic Agent Simulation
+
+IntentLedger supports two complementary evaluation experiences:
+
+1. **Deterministic Benchmark Scenarios (`/demo`):** Fixed, reproducible test cases (e.g., Nike Pegasus ₹3,499, Nike Vaporfly ₹7,999 drift, Monthly VIP ₹499/mo subscription breach, and Hero Context Tampering) designed for structured security and policy validation.
+2. **Dynamic Agent Simulation (`/simulation`):** When users create arbitrary natural-language intents (e.g. *"I want to buy a cord set kurti for ₹1,500. Ask me before purchasing."*), the AI Agent dynamically queries an internal deterministic mock commerce availability layer to select realistic candidate products and prices (e.g. ₹1,299 within authority vs. ₹1,699 over-budget drift).
+
+> [!NOTE]
+> **Authority vs. Availability:** The user's natural-language intent defines the immutable **authorization boundary** (e.g. Max ₹1,500). The internal commerce availability layer determines what candidate products and prices the agent can realistically propose. The **deterministic policy engine** independently evaluates whether that proposal is authorized (`ALLOW` / `ASK_APPROVAL` / `BLOCK`). The autonomous agent can **never modify** the user's spending authority. (Commerce availability is simulated via an internal deterministic catalog, not live third-party retailer inventory).
+
+### 4 Deterministic Benchmark Scenarios
 
 | Scenario | Candidate Agent Action | User Intent Policy | Decision Verdict | Payment Rail State |
 | :--- | :--- | :--- | :--- | :--- |
@@ -170,7 +180,7 @@ IntentLedger Policy Enforcement → Approval Minting → Payment Gate → Razorp
 - **Persistence:** Dual-Mode Architecture (MongoDB Mongoose + High-Speed In-Memory Store)
 - **Payment Gateway:** Razorpay Node.js SDK (Test Mode) + Simulated Sandbox Provider
 - **Security:** Timing-safe HMAC SHA-256 signatures, cryptographic proposal snapshots, append-only ledger
-- **Testing:** 49 automated unit and integration tests across 5 test suites
+- **Testing:** 64 automated unit and integration tests across 6 test suites
 
 ---
 
@@ -236,7 +246,7 @@ npm run dev
 
 ---
 
-## Automated Test Suite (49/49 Passing)
+## Automated Test Suite (64/64 Passing)
 
 Run the comprehensive test suite from the `server` directory:
 

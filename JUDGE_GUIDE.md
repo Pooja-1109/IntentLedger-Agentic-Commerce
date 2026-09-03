@@ -80,4 +80,4 @@ Run all automated unit and integration tests from the `server` directory:
 cd server
 npm test
 ```
-*Result: 49/49 passing tests (Decision Engine, Workflow & Security, Compiler, Persistence, Razorpay).*
+*Result: 64/64 passing tests (Decision Engine, Workflow & Security, Compiler & AI Fallback, Persistence, Razorpay Rail, and Dynamic Commerce Availability).*

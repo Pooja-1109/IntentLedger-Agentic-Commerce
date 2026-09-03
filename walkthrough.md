@@ -1,5 +1,7 @@
 # IntentLedger — Milestone 5 Walkthrough: Razorpay Test-Mode Agentic Payment Rail + Secure Checkout + Authorization Binding
 
+> **Documentation note:** This is a historical implementation walkthrough from an earlier milestone. For the current system behavior, latest demo flow, and dynamic availability simulation, see `README.md` and `JUDGE_GUIDE.md`.
+
 ## Overview & Architecture Summary
 
 Milestone 5 upgrades **IntentLedger** from a purely simulated payment gate into a production-grade **Razorpay Test-Mode Agentic Payment Rail** while keeping the core security thesis intact:
