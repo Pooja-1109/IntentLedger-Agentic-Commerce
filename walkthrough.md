@@ -11,18 +11,20 @@ Even if a rogue or drifting AI agent modifies ₹3,499 to ₹7,999 after receivi
 ```
 USER INTENT (Natural Language)
      ↓
-[ GEMINI 1.5 COMPILER / RULES ] ──→ Typed Intent Policy (Budget, Merchants, Permissions)
+[ INTENT COMPILER / RULES / GEMINI ] ──→ Authorization Boundary (Budget, Merchants, Permissions)
      ↓
-AI AGENT CANDIDATE PROPOSAL
+[ MOCK COMMERCE AVAILABILITY LAYER ] ──→ Discovers Multi-Tier Candidate Products (Pricing Aware)
      ↓
-[ INTENTLEDGER DECISION ENGINE ] ──→ ALLOW / ASK_APPROVAL / BLOCK
+[ AI AGENT CANDIDATE PROPOSAL ] ──→ Dynamically Selected Candidate (e.g. ₹1,299 vs ₹1,699)
+     ↓
+[ DETERMINISTIC POLICY ENGINE ] ──→ ALLOW / ASK_APPROVAL (Review Mandate) / BLOCK
      ↓
 [ HUMAN APPROVAL CENTER ] ──→ Cryptographic Token + Immutable Proposal Snapshot (10m TTL)
      ↓
-[ PAYMENT GATE & AUTHORIZATION ] ──→ Validates Snapshot Context (Anti-Tampering)
+[ PAYMENT GATE & AUTHORIZATION ] ──→ Validates Snapshot Context (Anti-Tampering Invariant)
      ↓
 [ RAZORPAY TEST PAYMENT RAIL ]
-  ├── 1. `createOrder()` ──→ Exact Minor Units Conversion (₹3,499 ──→ 349900 paise)
+  ├── 1. `createOrder()` ──→ Exact Minor Units Conversion (₹1,299 ──→ 129900 paise)
   ├── 2. Razorpay Checkout JS Modal / Simulated Bridge
   └── 3. `verifyPayment()` ──→ Timing-Safe Server-Side HMAC-SHA256 Signature Verification
      ↓

@@ -61,7 +61,7 @@ export class RuleBasedCompilerProvider {
     }
 
     if (!maxAmount) {
-      const singleAmountRegex = /(?:under|below|max|upto|up to|budget of|less than|within|for|around)\s*(?:₹|rs\.?|inr|\$|usd)?\s*([\d,]+(?:\.\d+)?)/i;
+      const singleAmountRegex = /(?:under|below|max|upto|up to|budget of|less than|within|for|around|approx|approximately|at|price of)\s*(?:₹|rs\.?|inr|\$|usd)?\s*([\d,]+(?:\.\d+)?)/i;
       const directAmountRegex = /(?:₹|rs\.?|inr|\$|usd)\s*([\d,]+(?:\.\d+)?)/i;
 
       const amountMatch = rawText.match(singleAmountRegex) || rawText.match(directAmountRegex);
@@ -114,7 +114,7 @@ export class RuleBasedCompilerProvider {
     let quantity = 1;
     const qtyMatch =
       textLower.match(/(?:set of|pack of|box of|quantity of|qty:?|quantity:?|count:?)\s*(\d+)/i) ||
-      textLower.match(/(\d+)\s*(?:notebooks?|books?|monitors?|laptops?|shoes?|items?|units?|pieces?|pairs?|passes)/i);
+      textLower.match(/(\d+)\s*(?:notebooks?|books?|monitors?|laptops?|shoes?|kurtis?|items?|units?|pieces?|pairs?|passes)/i);
 
     if (qtyMatch && qtyMatch[1]) {
       const parsedQty = parseInt(qtyMatch[1], 10);
@@ -127,7 +127,13 @@ export class RuleBasedCompilerProvider {
     let productCategory: string | undefined;
     let productName = "Procurement Item";
 
-    if (textLower.includes("notebook")) {
+    if (textLower.includes("cord set kurti") || (textLower.includes("cord set") && textLower.includes("kurti"))) {
+      productCategory = "clothing";
+      productName = "Cord Set Kurti";
+    } else if (textLower.includes("kurti") || textLower.includes("cord set") || textLower.includes("dress") || textLower.includes("saree") || textLower.includes("clothing") || textLower.includes("apparel") || textLower.includes("shirt") || textLower.includes("jeans") || textLower.includes("ethnic")) {
+      productCategory = "clothing";
+      productName = textLower.includes("kurti") ? "Kurti" : "Apparel Item";
+    } else if (textLower.includes("notebook")) {
       productCategory = "notebooks";
       productName = quantity > 1 ? `Notebook Set (Pack of ${quantity})` : "Notebook Set";
     } else if (textLower.includes("monitor") || textLower.includes("screen") || textLower.includes("display")) {
@@ -168,6 +174,8 @@ export class RuleBasedCompilerProvider {
     if (textLower.includes("nike")) allowedMerchants.push("Nike India");
     if (textLower.includes("amazon")) allowedMerchants.push("Amazon");
     if (textLower.includes("flipkart")) allowedMerchants.push("Flipkart");
+    if (textLower.includes("myntra")) allowedMerchants.push("Myntra");
+    if (textLower.includes("ajio")) allowedMerchants.push("Ajio");
     if (textLower.includes("blinkit")) allowedMerchants.push("Blinkit");
 
     if (allowedMerchants.length === 0) {

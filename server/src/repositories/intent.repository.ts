@@ -21,6 +21,29 @@ class InMemoryIntentRepository implements IIntentRepository {
     this.intents.clear();
     const initialIntents: Intent[] = [
       {
+        id: "intent_demo_cord_set_kurti",
+        userId: "user_dev_01",
+        rawText: "I want to buy a cord set kurti for ₹1,500. Ask me before purchasing.",
+        category: "shopping",
+        constraints: {
+          maxAmount: 1500,
+          currency: "INR",
+          productCategory: "clothing",
+          allowedMerchants: ["Myntra", "Ajio", "Approved Fashion Store"],
+          requiresApproval: true,
+          quantity: 1,
+        },
+        permissions: {
+          canPurchase: true,
+          canSubscribe: false,
+          canTransfer: false,
+          canChangeQuantity: false,
+        },
+        status: "active",
+        createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+        updatedAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+      },
+      {
         id: "intent_demo_running_shoes",
         userId: "user_dev_01",
         rawText: "Buy me running shoes under ₹4,000 and ask me before purchasing.",

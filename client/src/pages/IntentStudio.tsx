@@ -26,6 +26,10 @@ export const IntentStudio: React.FC = () => {
   // Preset sample prompts
   const samplePrompts = [
     {
+      title: "Cord Set Kurti",
+      text: "I want to buy a cord set kurti for ₹1,500. Ask me before purchasing.",
+    },
+    {
       title: "Notebook Set (6 Pack)",
       text: "I want to buy a set of 6 notebooks for around ₹500 to ₹600 from an approved store. Ask me before purchasing.",
     },

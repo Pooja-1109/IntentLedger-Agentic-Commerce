@@ -315,7 +315,25 @@ npm test
 ✅ [PASS] 12. Forged signature rejected with PAYMENT_VERIFICATION_FAILED
 ✅ [PASS] 13. Order ID context mismatch during settlement is BLOCKED with PAYMENT_CONTEXT_MISMATCH
 ==================================================
-Total: 49/49 Tests Passed. Failed: 0
+🧪 RUNNING DYNAMIC AVAILABILITY & COMMERCE PRICING TESTS (15/15)
+==================================================
+✅ [PASS] 1. Available price below authority (₹1,299 vs ₹1,500 max) generates realistic compliant proposal
+✅ [PASS] 1b. Proposal below authority evaluates to ASK_APPROVAL (Review Mandate) due to human approval constraint
+✅ [PASS] 2. Available price near boundary (₹1,449 vs ₹1,500 limit) produces valid proposal within spending authority
+✅ [PASS] 2b. Candidate at boundary is compliant and triggers ASK_APPROVAL review mandate
+✅ [PASS] 3. Available price above authority (₹1,699 vs ₹1,500 limit) discovers realistic market exceedance candidate
+✅ [PASS] 3b. Over-budget candidate (₹1,699) is deterministically BLOCKED with PROPOSED_AMOUNT_EXCEEDS_MAXIMUM
+✅ [PASS] 4. 🛡️ SECURITY PROOF: Agent proposal never mutates user authorization boundary (stays fixed at ₹1,500)
+✅ [PASS] 5. Different product categories produce distinct realistic prices (Laptop: ₹35,000+, Monitor: ₹18,500+, Kurti: ₹1,299)
+✅ [PASS] 6. Quantity multiplies unit price into accurate total transaction amount (6 × ₹85 = ₹510)
+✅ [PASS] 7. Canonical proposal snapshot (₹1,299 'Daily Cotton Cord Set Kurti') preserved identically in approval
+✅ [PASS] 7b. Payment Gate authorizes exact canonical snapshot (₹1,299) without alteration
+✅ [PASS] 7c. Payment completes and records exact canonical transaction
+✅ [PASS] 8. Blocked proposal (₹1,699 > ₹1,500) halts payment authorization before order creation
+✅ [PASS] 9. State refresh / persistence lookup faithfully preserves completed transaction and ledger events
+✅ [PASS] 10. Dynamic proposal generation utility yields reproducible, structured agent proposals
+==================================================
+Total: 64/64 Tests Passed. Failed: 0
 ==================================================
 ```
 

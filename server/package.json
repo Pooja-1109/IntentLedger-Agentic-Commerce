@@ -12,7 +12,8 @@
     "test:compiler": "ts-node-dev --transpile-only src/tests/compiler.test.ts",
     "test:persistence": "ts-node-dev --transpile-only src/tests/persistence.test.ts",
     "test:razorpay": "ts-node-dev --transpile-only src/tests/razorpay.test.ts",
-    "test": "ts-node-dev --transpile-only src/tests/decision.test.ts && ts-node-dev --transpile-only src/tests/workflow.test.ts && ts-node-dev --transpile-only src/tests/compiler.test.ts && ts-node-dev --transpile-only src/tests/persistence.test.ts && ts-node-dev --transpile-only src/tests/razorpay.test.ts"
+    "test:availability": "ts-node-dev --transpile-only src/tests/availability.test.ts",
+    "test": "ts-node-dev --transpile-only src/tests/decision.test.ts && ts-node-dev --transpile-only src/tests/workflow.test.ts && ts-node-dev --transpile-only src/tests/compiler.test.ts && ts-node-dev --transpile-only src/tests/persistence.test.ts && ts-node-dev --transpile-only src/tests/razorpay.test.ts && ts-node-dev --transpile-only src/tests/availability.test.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

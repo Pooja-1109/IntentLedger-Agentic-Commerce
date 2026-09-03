@@ -12,6 +12,10 @@ import {
   getIntentByIdHandler,
 } from "../controllers/intent.controller";
 import {
+  getAvailabilityHandler,
+  proposeCandidateHandler,
+} from "../controllers/availability.controller";
+import {
   evaluateDecisionHandler,
   getDecisionsByIntentIdHandler,
   getDemoScenariosHandler,
@@ -50,6 +54,10 @@ apiRouter.post("/intents/compile", compileIntentHandler);
 apiRouter.post("/intents", createIntentHandler);
 apiRouter.get("/intents", getAllIntentsHandler);
 apiRouter.get("/intents/:id", getIntentByIdHandler);
+
+// Mock Commerce Availability & Dynamic Candidate Discovery
+apiRouter.get("/commerce/candidates/:intentId", getAvailabilityHandler);
+apiRouter.post("/commerce/propose", proposeCandidateHandler);
 
 // Decision Engine & Policy Checks
 apiRouter.post("/decisions/evaluate", evaluateDecisionHandler);

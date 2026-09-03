@@ -11,6 +11,7 @@ import {
   SystemStats,
   RazorpayCheckoutData,
   RazorpayVerificationPayload,
+  AvailabilityResult,
 } from "../types";
 
 const api = axios.create({
@@ -242,6 +243,41 @@ export const apiService = {
         return response.data.data;
       }
       throw new Error(`Intent ${id} not found`);
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.error?.message) {
+        throw new Error(error.response.data.error.message);
+      }
+      throw error;
+    }
+  },
+
+  // Mock Commerce Availability & Dynamic Candidate Discovery
+  async getCommerceCandidates(intentId: string): Promise<AvailabilityResult> {
+    try {
+      const response = await api.get<ApiResponse<AvailabilityResult>>(`/commerce/candidates/${intentId}`);
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      }
+      throw new Error("Failed to fetch commerce availability candidates");
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.error?.message) {
+        throw new Error(error.response.data.error.message);
+      }
+      throw error;
+    }
+  },
+
+  // Generate dynamic AI agent proposal from available candidates
+  async generateDynamicProposal(intentId: string, candidateId?: string): Promise<AgentProposal> {
+    try {
+      const response = await api.post<ApiResponse<AgentProposal>>("/commerce/propose", {
+        intentId,
+        candidateId,
+      });
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      }
+      throw new Error("Failed to generate agent proposal");
     } catch (error) {
       if (error instanceof AxiosError && error.response?.data?.error?.message) {
         throw new Error(error.response.data.error.message);

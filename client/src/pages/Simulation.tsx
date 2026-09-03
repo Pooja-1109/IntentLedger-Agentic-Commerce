@@ -12,10 +12,12 @@ import {
   Sparkles,
   SlidersHorizontal,
   FileCheck,
+  ShoppingBag,
+  RefreshCw,
 } from "lucide-react";
 import { DecisionBadge } from "../components/StatusBadge";
 import { apiService } from "../services/api";
-import { Intent, DecisionResult, AgentProposal } from "../types";
+import { Intent, DecisionResult, AgentProposal, AvailabilityResult, CommerceCandidate } from "../types";
 
 export const SimulationPage: React.FC = () => {
   const location = useLocation();
@@ -29,12 +31,17 @@ export const SimulationPage: React.FC = () => {
     passedState?.intentId || localStorage.getItem("activeIntentId") || ""
   );
 
-  // Proposal State (Dynamically calculated from active intent)
-  const [proposalProduct, setProposalProduct] = useState<string>("Notebook Set (Pack of 6)");
+  // Availability & Dynamic Candidates State
+  const [availability, setAvailability] = useState<AvailabilityResult | null>(null);
+  const [selectedCandidateId, setSelectedCandidateId] = useState<string>("");
+  const [loadingAvailability, setLoadingAvailability] = useState<boolean>(false);
+
+  // Active Proposal State
+  const [proposalProduct, setProposalProduct] = useState<string>("Cord Set Kurti");
   const [proposalMerchant, setProposalMerchant] = useState<string>("Approved Store");
-  const [proposalAmount, setProposalAmount] = useState<number>(550);
+  const [proposalAmount, setProposalAmount] = useState<number>(1299);
   const [proposalCurrency, setProposalCurrency] = useState<string>("INR");
-  const [proposalQuantity, setProposalQuantity] = useState<number>(6);
+  const [proposalQuantity, setProposalQuantity] = useState<number>(1);
   const [proposalAction, setProposalAction] = useState<AgentProposal["action"]>("purchase");
   const [isSubscription, setIsSubscription] = useState<boolean>(false);
 
@@ -46,77 +53,40 @@ export const SimulationPage: React.FC = () => {
   // Collapsible Advanced Testing
   const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
 
-  // Dynamic compliant proposal calculation based on actual intent
-  const deriveCompliantProposal = (intent: Intent) => {
-    const maxAmount = intent.constraints.maxAmount || 5000;
-    const currency = intent.constraints.currency || "INR";
-    const quantity = intent.constraints.quantity || 1;
-    const raw = intent.rawText.toLowerCase();
+  // Fetch candidates and set proposal based on intent
+  const fetchCandidateAvailability = async (intent: Intent, preselectCandidateId?: string) => {
+    setLoadingAvailability(true);
+    try {
+      const availData = await apiService.getCommerceCandidates(intent.id);
+      setAvailability(availData);
 
-    // 1. Calculate realistic compliant amount inside the spending boundary
-    let compliantAmount: number;
-    const rangeRegex = /(?:around|between|from)?\s*(?:₹|rs\.?|inr|\$|usd)?\s*([\d,]+(?:\.\d+)?)\s*(?:to|-|and)\s*(?:₹|rs\.?|inr|\$|usd)?\s*([\d,]+(?:\.\d+)?)/i;
-    const rangeMatch = raw.match(rangeRegex);
+      const targetCandidate = preselectCandidateId
+        ? availData.candidates.find((c) => c.id === preselectCandidateId) || availData.recommendedCandidate
+        : availData.recommendedCandidate;
 
-    if (rangeMatch && rangeMatch[1] && rangeMatch[2]) {
-      const min = parseFloat(rangeMatch[1].replace(/,/g, ""));
-      const max = parseFloat(rangeMatch[2].replace(/,/g, ""));
-      if (!isNaN(min) && !isNaN(max)) {
-        // Midpoint of user's specified budget range (e.g. 500 to 600 -> 550)
-        compliantAmount = Math.round((min + max) / 2);
-      } else {
-        compliantAmount = Math.round(maxAmount * 0.85);
+      if (targetCandidate) {
+        setSelectedCandidateId(targetCandidate.id);
+        setProposalProduct(targetCandidate.name);
+        setProposalMerchant(targetCandidate.merchant);
+        setProposalAmount(targetCandidate.totalPrice);
+        setProposalCurrency(targetCandidate.currency);
+        setProposalQuantity(targetCandidate.quantity);
+        setProposalAction(targetCandidate.isSubscription ? "subscribe" : "purchase");
+        setIsSubscription(targetCandidate.isSubscription || false);
       }
-    } else if (maxAmount === 25000) {
-      compliantAmount = 18500;
-    } else if (maxAmount === 40000) {
-      compliantAmount = 35000;
-    } else if (maxAmount === 4000) {
-      compliantAmount = 3499;
-    } else if (maxAmount === 500) {
-      compliantAmount = 450;
-    } else if (maxAmount <= 1000) {
-      compliantAmount = Math.round(maxAmount * 0.85);
-    } else if (maxAmount <= 50000) {
-      compliantAmount = maxAmount > 10000 ? maxAmount - 5000 : Math.round(maxAmount * 0.85);
-    } else {
-      compliantAmount = Math.round(maxAmount * 0.85);
+    } catch (err) {
+      console.error("Failed to fetch commerce availability:", err);
+      // Fallback proposal calculation
+      const maxAmount = intent.constraints.maxAmount || 1500;
+      const amount = Math.round(maxAmount * 0.86);
+      setProposalProduct(intent.constraints.productCategory === "clothing" ? "Cord Set Kurti" : "Candidate Item");
+      setProposalMerchant(intent.constraints.allowedMerchants?.[0] || "Approved Store");
+      setProposalAmount(amount);
+      setProposalCurrency(intent.constraints.currency || "INR");
+      setProposalQuantity(intent.constraints.quantity || 1);
+    } finally {
+      setLoadingAvailability(false);
     }
-
-    // 2. Extract clean product name
-    let product = "Procurement Item";
-    if (raw.includes("notebook")) {
-      product = quantity > 1 ? `Notebook Set (Pack of ${quantity})` : "Notebook Set";
-    } else if (raw.includes("monitor") || raw.includes("screen") || raw.includes("display")) {
-      product = "Dell 27-Inch 4K UHD Monitor";
-    } else if (raw.includes("laptop") || raw.includes("macbook") || raw.includes("computer")) {
-      product = "Engineering Laptop";
-    } else if (raw.includes("shoe") || raw.includes("running")) {
-      product = "Nike Air Pegasus Running Shoes";
-    } else if (raw.includes("ticket") || raw.includes("flight") || raw.includes("travel")) {
-      product = "Round-Trip Flight Ticket";
-    } else if (raw.includes("stationery") || raw.includes("office")) {
-      product = "Office Stationery & Supplies";
-    } else if (raw.includes("pass") || raw.includes("stream")) {
-      product = "Streaming Service Pass";
-    } else if (intent.constraints.productCategory) {
-      product = `${intent.constraints.productCategory.charAt(0).toUpperCase() + intent.constraints.productCategory.slice(1)} Item`;
-    } else {
-      product = `${intent.category.toUpperCase()} Candidate Item`;
-    }
-
-    // 3. Extract merchant
-    const merchant =
-      intent.constraints.allowedMerchants?.[0] ||
-      (raw.includes("store") ? "Approved Store" : "Approved Vendor");
-
-    setProposalProduct(product);
-    setProposalMerchant(merchant);
-    setProposalAmount(compliantAmount);
-    setProposalCurrency(currency);
-    setProposalQuantity(quantity);
-    setProposalAction("purchase");
-    setIsSubscription(false);
   };
 
   useEffect(() => {
@@ -135,7 +105,7 @@ export const SimulationPage: React.FC = () => {
           setSelectedIntentId(activeId);
           const active = intentsData.find((i) => i.id === activeId) || intentsData[0];
           if (active) {
-            deriveCompliantProposal(active);
+            fetchCandidateAvailability(active);
           }
         }
       } catch (err) {
@@ -155,8 +125,21 @@ export const SimulationPage: React.FC = () => {
     setErrorMsg(null);
     const target = intents.find((i) => i.id === intentId);
     if (target) {
-      deriveCompliantProposal(target);
+      fetchCandidateAvailability(target);
     }
+  };
+
+  const handleSelectCandidate = (candidate: CommerceCandidate) => {
+    setSelectedCandidateId(candidate.id);
+    setProposalProduct(candidate.name);
+    setProposalMerchant(candidate.merchant);
+    setProposalAmount(candidate.totalPrice);
+    setProposalCurrency(candidate.currency);
+    setProposalQuantity(candidate.quantity);
+    setProposalAction(candidate.isSubscription ? "subscribe" : "purchase");
+    setIsSubscription(candidate.isSubscription || false);
+    setDecisionResult(null);
+    setErrorMsg(null);
   };
 
   // Primary Action: Evaluate Agent Proposal
@@ -195,30 +178,6 @@ export const SimulationPage: React.FC = () => {
     }
   };
 
-  // Boundary Violation Testing Action
-  const handleSimulateViolation = () => {
-    if (!selectedIntent) return;
-    const maxAmount = selectedIntent.constraints.maxAmount || 5000;
-    const violationAmount = maxAmount <= 1000 ? maxAmount + 150 : maxAmount > 10000 ? maxAmount + 5000 : Math.round(maxAmount * 1.5);
-    const violationProduct = `${proposalProduct} (Over-Budget Flagship)`;
-
-    setProposalProduct(violationProduct);
-    setProposalAmount(violationAmount);
-
-    handleEvaluateProposal({
-      id: `prop_viol_${Date.now().toString().slice(-4)}`,
-      intentId: selectedIntent.id,
-      product: violationProduct,
-      merchant: proposalMerchant,
-      amount: violationAmount,
-      currency: proposalCurrency,
-      quantity: proposalQuantity,
-      action: "purchase",
-      isSubscription: false,
-      proposedAt: new Date().toISOString(),
-    });
-  };
-
   return (
     <div className="space-y-8 animate-fadeIn max-w-5xl mx-auto">
       {/* Header */}
@@ -232,7 +191,7 @@ export const SimulationPage: React.FC = () => {
           Agent Simulation
         </h1>
         <p className="text-sm text-slate-600 mt-0.5 font-normal">
-          Evaluate how the autonomous agent generates and validates proposals against your active authorization boundary.
+          AI agents dynamically discover purchasable market candidates while IntentLedger deterministically enforces authorization boundaries.
         </p>
       </div>
 
@@ -242,7 +201,7 @@ export const SimulationPage: React.FC = () => {
         </div>
       )}
 
-      {/* 1. Active User Intent Banner */}
+      {/* 1. Active User Intent Authority Banner */}
       {selectedIntent && (
         <div className="fintech-card p-5 bg-gradient-to-r from-blue-50/60 via-white to-slate-50 border-blue-200 space-y-3 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2.5 border-b border-blue-100">
@@ -252,7 +211,7 @@ export const SimulationPage: React.FC = () => {
               </div>
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
-                  Active User Intent
+                  User Authorization Authority
                 </span>
                 <div className="text-sm font-extrabold text-slate-900 font-mono">
                   {selectedIntent.id}
@@ -288,13 +247,13 @@ export const SimulationPage: React.FC = () => {
               <span className="font-extrabold text-blue-700 block uppercase">{selectedIntent.category}</span>
             </div>
             <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
-              <span className="text-[10px] font-bold text-slate-500 uppercase block">Quantity Cap</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase block">Quantity Limit</span>
               <span className="font-extrabold text-slate-900 block tabular-nums">
                 {selectedIntent.constraints.quantity || 1} units
               </span>
             </div>
             <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
-              <span className="text-[10px] font-bold text-slate-500 uppercase block">Spending Boundary</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase block">Spending Authority</span>
               <span className="font-extrabold text-slate-900 block tabular-nums">
                 ₹{selectedIntent.constraints.maxAmount?.toLocaleString()} <span className="text-[10px] text-slate-500 font-mono">MAX</span>
               </span>
@@ -302,13 +261,13 @@ export const SimulationPage: React.FC = () => {
             <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
               <span className="text-[10px] font-bold text-slate-500 uppercase block">Purchase</span>
               <span className="font-extrabold text-emerald-800 block">
-                {selectedIntent.permissions.canPurchase ? "Allowed" : "Blocked"}
+                {selectedIntent.permissions.canPurchase ? "Authorized" : "Blocked"}
               </span>
             </div>
             <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
-              <span className="text-[10px] font-bold text-slate-500 uppercase block">Human Approval</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase block">Human Review</span>
               <span className={`font-extrabold block ${selectedIntent.constraints.requiresApproval ? "text-amber-800" : "text-emerald-800"}`}>
-                {selectedIntent.constraints.requiresApproval ? "Required" : "Auto-Allow"}
+                {selectedIntent.constraints.requiresApproval ? "Mandatory Review" : "Auto-Authorize"}
               </span>
             </div>
             <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
@@ -321,7 +280,110 @@ export const SimulationPage: React.FC = () => {
         </div>
       )}
 
-      {/* 2. Main Evaluation Workspace */}
+      {/* 2. Commerce Availability Layer: Dynamic Candidate Discovery */}
+      <div className="fintech-card p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-200">
+          <div className="flex items-center gap-2">
+            <ShoppingBag className="w-4 h-4 text-blue-600" />
+            <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+              Market Candidates Discovered by Autonomous Agent
+            </h2>
+          </div>
+          <span className="text-[11px] text-slate-500 font-medium">
+            Dynamic Availability Layer (Pricing &amp; Catalog Aware)
+          </span>
+        </div>
+
+        {loadingAvailability ? (
+          <div className="py-6 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
+            <RefreshCw className="w-4 h-4 animate-spin text-blue-600" />
+            <span>Discovering market candidate options...</span>
+          </div>
+        ) : availability && availability.candidates.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            {availability.candidates.map((cand) => {
+              const isSelected = cand.id === selectedCandidateId;
+              const maxAmt = selectedIntent?.constraints.maxAmount || 0;
+              const isWithin = cand.totalPrice <= maxAmt;
+              const isDrift = cand.totalPrice > maxAmt;
+
+              return (
+                <button
+                  key={cand.id}
+                  type="button"
+                  onClick={() => handleSelectCandidate(cand)}
+                  className={`text-left p-4 rounded-xl border transition-all relative flex flex-col justify-between ${
+                    isSelected
+                      ? "bg-blue-50/80 border-blue-500 ring-2 ring-blue-500/20 shadow-sm"
+                      : "bg-white hover:bg-slate-50 border-slate-200 shadow-2xs"
+                  }`}
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <span
+                        className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md border ${
+                          cand.matchTier === "within_budget"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            : cand.matchTier === "exact_budget"
+                            ? "bg-blue-50 text-blue-800 border-blue-200"
+                            : "bg-rose-50 text-rose-800 border-rose-200"
+                        }`}
+                      >
+                        {cand.matchTier === "within_budget"
+                          ? "Within Authority"
+                          : cand.matchTier === "exact_budget"
+                          ? "Optimal Match"
+                          : "Market Exceedance"}
+                      </span>
+                      {isSelected && (
+                        <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded">
+                          Selected Proposal
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs font-extrabold text-slate-900 leading-snug">
+                        {cand.name}
+                      </h4>
+                      <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">
+                        {cand.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 mt-3 border-t border-slate-200 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-slate-500 uppercase block font-semibold">
+                        {cand.quantity > 1 ? `₹${cand.unitPrice} × ${cand.quantity}` : cand.merchant}
+                      </span>
+                      <span className="text-base font-extrabold text-slate-900 tabular-nums">
+                        ₹{cand.totalPrice.toLocaleString()}{" "}
+                        <span className="text-[10px] font-mono text-slate-500 font-normal">INR</span>
+                      </span>
+                    </div>
+
+                    <div className="text-right">
+                      <span
+                        className={`text-[10px] font-bold block ${
+                          isWithin ? "text-emerald-700" : "text-rose-600"
+                        }`}
+                      >
+                        {isWithin ? "✓ Compliant" : "🚨 Over Limit"}
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        {isDrift ? `+₹${(cand.totalPrice - maxAmt).toLocaleString()}` : `₹${cand.totalPrice} / ₹${maxAmt}`}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+
+      {/* 3. Main Evaluation Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: AI Agent Proposal */}
         <div className="lg:col-span-6 fintech-card p-6 flex flex-col justify-between space-y-4">
@@ -333,8 +395,8 @@ export const SimulationPage: React.FC = () => {
                   AI Agent Proposal
                 </h3>
               </div>
-              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 uppercase">
-                Derived from Active Intent
+              <span className="text-[10px] font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 uppercase">
+                Dynamic Market Selection
               </span>
             </div>
 
@@ -367,9 +429,25 @@ export const SimulationPage: React.FC = () => {
               </div>
 
               <div className="pt-2 border-t border-slate-200 text-xs flex items-center justify-between">
-                <span className="text-slate-600 font-medium">Action: One-Time Purchase</span>
-                <span className="text-emerald-700 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Inside ₹{selectedIntent?.constraints.maxAmount?.toLocaleString()} Limit
+                <span className="text-slate-600 font-medium">
+                  Action: {isSubscription ? "Recurring Subscription" : "One-Time Purchase"}
+                </span>
+                <span
+                  className={`font-bold flex items-center gap-1 ${
+                    proposalAmount <= (selectedIntent?.constraints.maxAmount || 0)
+                      ? "text-emerald-700"
+                      : "text-rose-600"
+                  }`}
+                >
+                  {proposalAmount <= (selectedIntent?.constraints.maxAmount || 0) ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Inside ₹{selectedIntent?.constraints.maxAmount?.toLocaleString()} Limit
+                    </>
+                  ) : (
+                    <>
+                      <ShieldAlert className="w-3.5 h-3.5" /> Exceeds ₹{selectedIntent?.constraints.maxAmount?.toLocaleString()} Limit
+                    </>
+                  )}
                 </span>
               </div>
             </div>
@@ -405,7 +483,7 @@ export const SimulationPage: React.FC = () => {
                 <Sparkles className="w-10 h-10 text-slate-300 mx-auto" />
                 <h4 className="text-xs font-bold text-slate-700">Awaiting Evaluation</h4>
                 <p className="text-xs text-slate-500 max-w-xs mx-auto font-medium">
-                  Click <strong>"Evaluate Agent Proposal"</strong> on the left to execute deterministic policy governance.
+                  Click <strong>"Evaluate Agent Proposal"</strong> on the left to execute deterministic policy governance on the selected candidate.
                 </p>
               </div>
             ) : (
@@ -451,8 +529,22 @@ export const SimulationPage: React.FC = () => {
                 <div className="space-y-2 text-xs">
                   <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
                     <span className="text-slate-800 font-semibold">Within User Authority</span>
-                    <span className="font-bold text-emerald-700 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Passed
+                    <span
+                      className={`font-bold flex items-center gap-1 ${
+                        proposalAmount <= (selectedIntent?.constraints.maxAmount || 0)
+                          ? "text-emerald-700"
+                          : "text-rose-600"
+                      }`}
+                    >
+                      {proposalAmount <= (selectedIntent?.constraints.maxAmount || 0) ? (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Passed
+                        </>
+                      ) : (
+                        <>
+                          <ShieldAlert className="w-3.5 h-3.5 text-rose-600" /> Exceeded Limit
+                        </>
+                      )}
                     </span>
                   </div>
 
@@ -480,7 +572,7 @@ export const SimulationPage: React.FC = () => {
                         </>
                       ) : (
                         <>
-                          <ShieldAlert className="w-3.5 h-3.5 text-rose-600" /> Exceeded
+                          <ShieldAlert className="w-3.5 h-3.5 text-rose-600" /> +₹{(proposalAmount - (selectedIntent?.constraints.maxAmount || 0)).toLocaleString()} Exceeded
                         </>
                       )}
                     </span>
@@ -488,11 +580,31 @@ export const SimulationPage: React.FC = () => {
 
                   <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between">
                     <span className="text-slate-800 font-semibold">Human Approval Mandate</span>
-                    <span className="font-bold text-amber-800 flex items-center gap-1">
-                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> Required
+                    <span
+                      className={`font-bold flex items-center gap-1 ${
+                        selectedIntent?.constraints.requiresApproval ? "text-amber-800" : "text-emerald-700"
+                      }`}
+                    >
+                      {selectedIntent?.constraints.requiresApproval ? (
+                        <>
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> Required
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Auto-Authorized
+                        </>
+                      )}
                     </span>
                   </div>
                 </div>
+
+                {/* Explanation Banner */}
+                {decisionResult.decision === "BLOCK" && (
+                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 text-xs">
+                    <span className="font-bold block">🚨 Policy Enforcement Blocked Transaction:</span>
+                    <span className="text-[11px] text-rose-800">{decisionResult.explanation}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -503,7 +615,9 @@ export const SimulationPage: React.FC = () => {
               <span className="text-slate-600 font-medium">
                 {decisionResult.decision === "ASK_APPROVAL"
                   ? "Human Approval Mandate Required:"
-                  : "Pre-Authorized Payment Ready:"}
+                  : decisionResult.decision === "ALLOW"
+                  ? "Pre-Authorized Payment Ready:"
+                  : "Zero Funds Moved:"}
               </span>
 
               {decisionResult.decision !== "BLOCK" ? (
@@ -541,7 +655,7 @@ export const SimulationPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Collapsible Advanced Testing / Boundary Violation */}
+      {/* 4. Collapsible Advanced Custom Parameters Testing */}
       <div className="fintech-card p-4">
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
@@ -549,32 +663,16 @@ export const SimulationPage: React.FC = () => {
         >
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
-            <span>Advanced Testing &amp; Boundary Violation Simulation</span>
+            <span>Advanced Custom Proposal Parameter Tuning</span>
           </div>
           {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
 
         {showAdvanced && (
           <div className="mt-4 pt-4 border-t border-slate-200 space-y-4 animate-fadeIn text-xs">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 rounded-lg bg-rose-50 border border-rose-200">
-              <div>
-                <span className="font-bold text-rose-900 block">Simulate Boundary Violation (Over-Budget Breach)</span>
-                <span className="text-slate-700 text-[11px]">
-                  Simulates a rogue agent proposing ₹{((selectedIntent?.constraints.maxAmount || 5000) <= 1000 ? (selectedIntent?.constraints.maxAmount || 500) + 150 : (selectedIntent?.constraints.maxAmount || 25000) + 5000).toLocaleString()} to verify deterministic BLOCK.
-                </span>
-              </div>
-              <button
-                onClick={handleSimulateViolation}
-                className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-2xs whitespace-nowrap"
-              >
-                Test Violation
-              </button>
-            </div>
-
-            {/* Custom Input Fields */}
             <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-3">
               <span className="font-bold text-slate-800 uppercase text-[10px] block">
-                Manual Custom Proposal Testing
+                Manual Custom Override
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                 <div>

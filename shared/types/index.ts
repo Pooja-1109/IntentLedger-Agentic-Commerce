@@ -56,6 +56,34 @@ export interface AgentProposal {
   metadata?: Record<string, unknown>;
 }
 
+export type CandidateMatchTier = "within_budget" | "exact_budget" | "budget_drift" | "subscription_variation";
+
+export interface CommerceCandidate {
+  id: string;
+  name: string;
+  category: string;
+  merchant: string;
+  unitPrice: number;
+  quantity: number;
+  totalPrice: number;
+  currency: string;
+  isSubscription?: boolean;
+  subscriptionFrequency?: "weekly" | "monthly" | "yearly";
+  matchTier: CandidateMatchTier;
+  description: string;
+}
+
+export interface AvailabilityResult {
+  intentId: string;
+  productRequested: string;
+  category: string;
+  userBudget: number;
+  currency: string;
+  quantity: number;
+  candidates: CommerceCandidate[];
+  recommendedCandidate: CommerceCandidate;
+}
+
 export type DecisionType = "ALLOW" | "ASK_APPROVAL" | "BLOCK";
 
 export type ViolationCode =
